@@ -1,10 +1,17 @@
 {
   "version": 2,
   "builds": [
-    { "src": "*.html", "use": "@vercel/static" },
-    { "src": "src/**/*", "use": "@vercel/static" }
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "src/css/**/*", "use": "@vercel/static" },
+    { "src": "src/js/assessment.js", "use": "@vercel/static" },
+    { "src": "src/js/biases.js", "use": "@vercel/static" },
+    { "src": "src/js/financial-types.js", "use": "@vercel/static" },
+    { "src": "src/js/main.js", "use": "@vercel/static" },
+    { "src": "src/js/personality-display.js", "use": "@vercel/static" },
+    { "src": "src/js/questions.js", "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "/$1" }
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 } 

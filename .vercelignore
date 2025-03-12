@@ -1,0 +1,16 @@
+# Test-related files that shouldn't be deployed
+*test*.html
+*test*.js
+src/js/test-suite.js
+src/js/ui-tests.js
+src/js/seo-tests.js
+src/js/schema-validator.js
+src/test-sharing.html
+test-sharing.html
+
+# Other files not needed in production
+TRACK.md
+server.py
+launch.sh
+start.sh
+fix-bias-card.js 

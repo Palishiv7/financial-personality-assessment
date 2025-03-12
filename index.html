@@ -154,7 +154,7 @@
                     <li><a href="#about" class="hover:text-blue-200">About</a></li>
                     <li><a href="#faq" class="hover:text-blue-200">FAQ</a></li>
                     <li><a href="#contact" class="hover:text-blue-200">Contact</a></li>
-                    <li><a href="javascript:void(0);" onclick="showSavedResults(); return false;" class="hover:text-blue-200 hidden" id="my-results-link">My Results</a></li>
+                    <li><a href="#results" class="hover:text-blue-200 hidden" id="my-results-link">My Results</a></li>
                 </ul>
             </nav>
         </div>
@@ -162,7 +162,7 @@
 
     <main class="container mx-auto px-4 py-4 mt-20">
         <!-- Hero Section -->
-        <section class="text-center py-10 px-6 rounded-xl hero-bg text-white my-4 shadow-xl">
+        <section id="hero-section" class="text-center py-10 px-6 rounded-xl hero-bg text-white my-4 shadow-xl">
             <h2 class="text-4xl font-bold mb-4">Discover Your Financial Personality Type</h2>
             <p class="text-xl mb-8 max-w-3xl mx-auto">
                 Take our assessment to discover your financial personality type and learn how your psychological tendencies influence your financial decisions.
@@ -179,7 +179,7 @@
         </section>
 
         <!-- Social Proof Section -->
-        <section class="py-10 bg-gradient-to-r from-blue-50 to-indigo-50 mt-8">
+        <section id="social-proof-section" class="py-10 bg-gradient-to-r from-blue-50 to-indigo-50 mt-8">
             <div class="container mx-auto px-4">
                 <!-- Stats Counter -->
                 <div class="flex flex-col md:flex-row justify-center items-center mb-10 text-center">
@@ -690,7 +690,7 @@
                         </a>
                         <a href="#" class="text-gray-400 hover:text-white transition-colors">
                             <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948 0 3.259-.014 3.667-.072 4.947-.196 4.354-2.617 6.78-6.979 6.98-1.281.059-1.69.073-4.949-.073zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.69.072 4.948 0 3.259-.014 3.667-.072 4.947-.196 4.354-2.617 6.78-6.979 6.98-1.281.059-1.69.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.259.014 3.668.072 4.948.2 4.358 2.618 2.618 6.78 6.98 6.98 1.281.058 1.69.072 4.948 0 3.259-.014 3.667-.072 4.947-.196 4.354-2.617 6.78-6.979 6.98-1.281.059-1.69.073-4.949-.073zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.69.072 4.948 0 3.259-.014 3.667-.072 4.947-.196 4.354-2.617 6.78-6.979 6.98-1.281.059-1.69.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
                             </svg>
                         </a>
                     </div>
@@ -734,22 +734,27 @@
     <script src="src/js/financial-types.js"></script>
     <script src="src/js/personality-display.js"></script>
     <script src="src/js/assessment.js"></script>
-    <script src="src/js/main.js" type="module"></script>
+    <script src="src/js/main.js"></script>
 
-    <!-- Test Scripts -->
-    <script src="src/js/test-suite.js"></script>
-    <script src="src/js/seo-tests.js"></script>
-    <script src="src/js/ui-tests.js"></script>
-    <script src="src/js/schema-validator.js"></script>
-    
-    <!-- SEO Test Scripts -->
-    <script src="src/js/seo-tests.js"></script>
-    <script src="src/js/ui-tests.js"></script>
-    <script src="src/js/schema-validator.js"></script>
-    
-    <!-- Fallback for non-module support -->
-    <script nomodule>
-        alert('This browser does not support JavaScript modules. Please use a modern browser.');
+    <!-- Only load test scripts in development mode -->
+    <script>
+        const isDevelopment = window.location.hostname === 'localhost' || 
+                            window.location.hostname === '127.0.0.1';
+        if (isDevelopment) {
+            // Load testing scripts only in development
+            const testScripts = [
+                'src/js/test-suite.js',
+                'src/js/seo-tests.js',
+                'src/js/ui-tests.js',
+                'src/js/schema-validator.js'
+            ];
+            
+            testScripts.forEach(script => {
+                const scriptElement = document.createElement('script');
+                scriptElement.src = script;
+                document.body.appendChild(scriptElement);
+            });
+        }
     </script>
 
     <script>
@@ -813,51 +818,6 @@
             // Initialize the router
             if (typeof initRouter === 'function') {
                 initRouter();
-            }
-        });
-    </script>
-
-    <!-- Template for Contact/About sections -->
-    <template id="contact-template">
-        <!-- ... existing code ... -->
-    </template>
-
-    <!-- Add debugging script before other scripts -->
-    <script>
-        // Navigation debugging
-        console.log('DEBUG: Document loaded');
-        
-        // Log hash changes
-        window.addEventListener('hashchange', function() {
-            console.log('DEBUG: Hash changed to:', window.location.hash);
-        });
-        
-        // Add direct event listeners to important navigation elements
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DEBUG: DOM Content Loaded');
-            
-            // Log Start Assessment button
-            const startBtn = document.getElementById('hero-start-assessment');
-            if (startBtn) {
-                console.log('DEBUG: Start Assessment button found');
-                startBtn.addEventListener('click', function() {
-                    console.log('DEBUG: Start Assessment button clicked');
-                    window.location.hash = 'assessment';
-                    console.log('DEBUG: Hash set to #assessment');
-                });
-            } else {
-                console.log('DEBUG: Start Assessment button NOT found');
-            }
-            
-            // Log Home link
-            const homeLink = document.querySelector('a[href="#home"]');
-            if (homeLink) {
-                console.log('DEBUG: Home link found');
-                homeLink.addEventListener('click', function(e) {
-                    console.log('DEBUG: Home link clicked');
-                });
-            } else {
-                console.log('DEBUG: Home link NOT found');
             }
         });
     </script>

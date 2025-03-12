@@ -104,7 +104,7 @@ function initAssessment() {
 
 // Start the assessment process
 function startAssessment() {
-    console.log('Starting assessment');
+    console.log('Starting assessment at:', new Date().toISOString());
     
     // Record start time
     assessmentStartTime = new Date();
@@ -114,14 +114,16 @@ function startAssessment() {
     
     // Show the assessment section if not already visible
     if (assessmentSection && assessmentSection.classList.contains('hidden')) {
-        console.log('Making assessment section visible');
+        console.log('Making assessment section visible from assessment.js');
         assessmentSection.classList.remove('hidden');
+        assessmentSection.style.display = 'block';
     }
     
-    // Make sure the question container is visible
+    // Show the question container and set up the first question
     if (questionContainer) {
-        console.log('Making question container visible');
+        console.log('Question container found, making it visible');
         questionContainer.classList.remove('hidden');
+        questionContainer.style.display = 'block';
         
         // Show the first question
         showQuestion(0);
@@ -138,7 +140,7 @@ function startAssessment() {
         // Show progress tracker
         showProgressTracker();
     } else {
-        console.error('Question container not found');
+        console.error('Question container not found in startAssessment');
     }
 }
 

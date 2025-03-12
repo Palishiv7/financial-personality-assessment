@@ -75,116 +75,138 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Application Router
 function initRouter() {
-    console.log('Router initialized');
+    console.log('Initializing router');
     
     // Define routes and their handlers
     const routes = {
-        '': () => navigateTo('home'),  // Default route redirects to #home
+        '': showHomeSection,  // Default route (empty hash)
         'home': showHomeSection,
         'assessment': showAssessmentSection,
         'results': showResultsSection,
         'about': showAboutSection,
         'contact': showContactSection,
-        'faq': showFAQSection  // Add FAQ section handler
+        'faq': showFAQSection
     };
     
-    // Initial route handling on page load
+    // Initial route handling on page load with a small delay to ensure DOM is ready
     setTimeout(() => {
-        console.log('Initial route handling...');
         handleRouteChange();
-    }, 100); // Small delay to ensure DOM is fully processed
+        console.log('Initial route handled');
+    }, 100);
     
     // Listen for hash changes
-    window.addEventListener('hashchange', function() {
-        console.log('Hash changed event detected to:', window.location.hash);
+    window.addEventListener('hashchange', function(e) {
+        console.log('Hash changed from:', e.oldURL, 'to:', e.newURL);
         handleRouteChange();
     });
     
-    // Update navigation links to use hash-based routing
-    updateNavigationLinks();
-    
     // Handle route changes
     function handleRouteChange() {
-        const hash = window.location.hash || '#home';
-        const routeKey = hash.split('?')[0].replace('#', '');
-        console.log('🔍 ROUTE CHANGE DETECTED:', hash, 'Route key:', routeKey);
+        let hash = window.location.hash.replace('#', '');
+        console.log('Route change detected to:', hash);
         
-        // Try to fix any UI state issues first
-        hideAllSections();
+        // If hash is empty, default to home
+        if (!hash) hash = 'home';
         
-        // If we have a handler for this route, call it
-        if (routes[routeKey]) {
-            console.log('Executing route handler for:', routeKey);
-            try {
-                routes[routeKey]();
-            } catch(e) {
-                console.error('Error in route handler:', e);
-                // Fallback to home on error
+        try {
+            // If we have a handler for this route, call it
+            if (routes[hash]) {
+                console.log('Executing route handler for:', hash);
+                routes[hash]();
+            } else {
+                // Default to home for unknown routes
+                console.log('Unknown route, defaulting to home');
                 showHomeSection();
             }
-        } else {
-            // Default to home for unknown routes
-            console.log('Unknown route, defaulting to home');
+            
+            // Update visibility of elements based on assessment completion
+            if (typeof updateVisibleElements === 'function') {
+                updateVisibleElements();
+            }
+            
+            // Update the active navigation item
+            updateActiveNavigation(hash);
+        } catch (error) {
+            console.error('Error handling route change:', error);
+            // Fallback to home on error
             showHomeSection();
-        }
-        
-        // Always ensure visibility elements are updated after route change
-        if (typeof updateVisibleElements === 'function') {
-            updateVisibleElements();
-            console.log('Updated visible elements after route change');
         }
     }
     
-    // Update navigation links to use hash navigation
+    // Update all navigation links to use hash navigation
+    updateNavigationLinks();
+    
+    // Function to update navigation links
     function updateNavigationLinks() {
-        const navLinks = document.querySelectorAll('nav a');
+        console.log('Updating navigation links');
+        
+        // Update all navigation links
+        const navLinks = document.querySelectorAll('nav a, .hero-cta, #hero-start-assessment, a[href^="#"]');
         navLinks.forEach(link => {
             const href = link.getAttribute('href');
             
+            // Skip processing if no href attribute
+            if (!href) return;
+            
             // Skip links that already have hash navigation or external links
             if (href.startsWith('#') || href.startsWith('http')) {
+                console.log(`Link already has hash or is external: ${href}`);
                 return;
             }
             
-            // Convert section links to hash navigation
-            if (href === '#') {
+            // Convert regular links to hash navigation
+            if (href === '/') {
                 link.setAttribute('href', '#home');
+                console.log('Root link updated to #home');
             } else {
-                // Replace '#section-id' with '#section-id' (remove the '#' prefix)
-                const sectionId = href.replace('#', '');
+                // Remove leading slash if present and add hash
+                const sectionId = href.replace(/^\//, '');
                 link.setAttribute('href', `#${sectionId}`);
+                console.log(`Link updated: ${href} -> #${sectionId}`);
             }
         });
         
-        // Special handling for My Results link to ensure it shows results directly
-        const myResultsLink = document.getElementById('my-results-link');
-        if (myResultsLink) {
-            myResultsLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                console.log('My Results link clicked - showing results directly');
-                
-                // Show results section directly
-                window.showSavedResults();
-                
-                return false;
-            });
-        }
+        // Add event listeners to Start Assessment buttons
+        const startAssessmentButtons = document.querySelectorAll('.hero-cta, #hero-start-assessment, .start-assessment-btn, a[href="#assessment"]');
+        console.log('Found Start Assessment buttons:', startAssessmentButtons.length);
         
-        // Also add hash navigation to other action buttons
-        const startAssessmentButtons = document.querySelectorAll('#start-assessment');
         startAssessmentButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
+            // Remove existing event listeners first (to prevent duplicates)
+            const newButton = button.cloneNode(true);
+            button.parentNode.replaceChild(newButton, button);
+            
+            newButton.addEventListener('click', (e) => {
+                console.log('Start Assessment button clicked');
                 e.preventDefault();
                 navigateTo('assessment');
             });
         });
         
-        // Retake assessment button (if present)
-        const retakeButton = document.getElementById('retake-assessment');
-        if (retakeButton) {
-            retakeButton.addEventListener('click', (e) => {
+        // Add event listener for Home button
+        const homeLinks = document.querySelectorAll('a[href="#home"], a[href="#"]');
+        homeLinks.forEach(link => {
+            // Remove existing event listeners first
+            const newLink = link.cloneNode(true);
+            link.parentNode.replaceChild(newLink, link);
+            
+            newLink.addEventListener('click', (e) => {
+                console.log('Home link clicked');
                 e.preventDefault();
-                navigateTo('assessment');
+                navigateTo('home');
+            });
+        });
+        
+        // Add event listener for My Results link
+        const myResultsLink = document.getElementById('my-results-link');
+        if (myResultsLink) {
+            // Remove existing event listeners first
+            const newLink = myResultsLink.cloneNode(true);
+            myResultsLink.parentNode.replaceChild(newLink, myResultsLink);
+            
+            newLink.addEventListener('click', (e) => {
+                console.log('My Results link clicked');
+                e.preventDefault();
+                showSavedResults();
             });
         }
     }
@@ -194,6 +216,15 @@ function initRouter() {
 function navigateTo(route) {
     console.log('🚀 Navigation triggered to:', route);
     console.trace('navigateTo call stack:');
+    
+    // Special case for showing saved results
+    if (route === 'showResults') {
+        console.log('Special case: showing saved results');
+        displaySavedResults();
+        return;
+    }
+    
+    // Normal navigation via hash change
     window.location.hash = route;
 }
 
@@ -204,8 +235,8 @@ function showHomeSection() {
     // Hide all sections first
     hideAllSections();
     
-    // Show hero section
-    const heroSection = document.querySelector('.hero-bg').closest('section');
+    // Show hero section using its ID
+    const heroSection = document.getElementById('hero-section');
     if (heroSection) {
         heroSection.classList.remove('hidden');
         heroSection.style.display = 'block';
@@ -214,100 +245,112 @@ function showHomeSection() {
         console.warn('Hero section not found');
     }
     
-    // Show About section
-    const aboutSection = document.getElementById('about');
-    if (aboutSection) {
-        aboutSection.classList.remove('hidden');
-        aboutSection.style.display = 'block';
-        console.log('About section shown');
+    // Show social proof section using its ID
+    const socialProofSection = document.getElementById('social-proof-section');
+    if (socialProofSection) {
+        socialProofSection.classList.remove('hidden');
+        socialProofSection.style.display = 'block';
+        console.log('Social proof section shown');
+    } else {
+        console.warn('Social proof section not found');
     }
     
-    // Show Contact section
-    const contactSection = document.getElementById('contact');
-    if (contactSection) {
-        contactSection.classList.remove('hidden');
-        contactSection.style.display = 'block';
-        console.log('Contact section shown');
+    // Show the welcome back panel only for returning users
+    const welcomeBack = document.getElementById('welcome-back');
+    const completedAssessment = localStorage.getItem('fda_completed_assessment');
+    
+    if (welcomeBack && completedAssessment === 'true') {
+        welcomeBack.classList.remove('hidden');
+        welcomeBack.style.display = 'block';
+        console.log('Welcome back panel shown for returning user');
+    } else if (welcomeBack) {
+        welcomeBack.classList.add('hidden');
+        welcomeBack.style.display = 'none';
+        console.log('Welcome back panel hidden for new user');
     }
     
-    // Make sure stats counters and testimonials are visible
-    const statsCounters = document.querySelector('.stats-counter, .flex.flex-col.md\\:flex-row.justify-center.items-center.mb-10');
-    if (statsCounters) {
-        statsCounters.classList.remove('hidden');
-        statsCounters.style.display = 'flex';
-        console.log('Stats counters shown');
+    // Run animations for counters if they exist
+    if (typeof animateCounters === 'function') {
+        animateCounters();
     }
-    
-    const testimonialsSection = document.querySelector('.testimonials, .grid.md\\:grid-cols-3.gap-6');
-    if (testimonialsSection) {
-        testimonialsSection.classList.remove('hidden');
-        testimonialsSection.style.display = 'grid';
-        console.log('Testimonials shown');
-    }
-    
-    // Re-run counter animations when returning to home
-    animateCounters();
     
     // Scroll to top
-    window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     
     // Update active navigation
     updateActiveNavigation('home');
-    
-    // Ensure "My Results" link visibility is correctly set
-    // This fixes the issue where sometimes the link is not visible after returning to home
-    if (typeof updateVisibleElements === 'function') {
-        updateVisibleElements();
-        console.log('Updated visible elements after showing home section');
-    }
 }
 
 function showAssessmentSection() {
+    console.log('🚀 showAssessmentSection called, timestamp:', new Date().toISOString());
     console.log('Showing assessment section');
     
-    // Hide all sections first
-    hideAllSections();
-    
-    // Explicitly hide the welcome back message - this is crucial
-    const welcomeBackSection = document.getElementById('welcome-back');
-    if (welcomeBackSection) {
-        welcomeBackSection.classList.add('hidden');
-        welcomeBackSection.style.display = 'none';
-        console.log('Welcome back panel hidden for assessment');
-    }
-    
-    // Reset and show assessment section
-    const assessmentSection = document.getElementById('assessment-section');
-    if (assessmentSection) {
-        // Make sure the assessment section is visible
-        assessmentSection.classList.remove('hidden');
-        assessmentSection.style.display = 'block';
-        console.log('Assessment section shown');
+    try {
+        // First make sure we really hide ALL other sections
+        hideAllSections();
         
-        // Start the assessment if the function exists
-        if (typeof startAssessment === 'function') {
-            startAssessment();
+        // Extra check to hide ALL homepage content sections
+        const heroSection = document.querySelector('.hero-bg');
+        if (heroSection) {
+            const heroContainer = heroSection.closest('section');
+            if (heroContainer) {
+                heroContainer.classList.add('hidden');
+                heroContainer.style.display = 'none';
+                console.log('Hero section explicitly hidden for assessment');
+            }
         }
         
-        // Get the header height to use as offset
-        const headerHeight = document.querySelector('header')?.offsetHeight || 80;
+        // Make sure the social proof section is hidden
+        const socialSection = document.querySelector('.py-10.bg-gradient-to-r.from-blue-50');
+        if (socialSection) {
+            socialSection.classList.add('hidden');
+            socialSection.style.display = 'none';
+            console.log('Social proof section explicitly hidden for assessment');
+        }
         
-        // Scroll to Assessment section with proper offset for fixed header
-        window.scrollTo({
-            top: assessmentSection.offsetTop - headerHeight - 20, // Extra 20px padding
-            behavior: 'smooth'
-        });
-    } else {
-        console.error('Assessment section not found in DOM');
-        // Fallback to home if assessment section is missing
-        navigateTo('home');
+        // Double check that welcome back is hidden
+        const welcomeBackSection = document.getElementById('welcome-back');
+        if (welcomeBackSection) {
+            welcomeBackSection.classList.add('hidden');
+            welcomeBackSection.style.display = 'none';
+            console.log('Welcome back panel explicitly hidden for assessment');
+        }
+        
+        // Show ONLY the assessment section
+        const assessmentSection = document.getElementById('assessment-section');
+        if (assessmentSection) {
+            // Make sure the assessment section is visible
+            assessmentSection.classList.remove('hidden');
+            assessmentSection.style.display = 'block';
+            console.log('Assessment section shown');
+            
+            // Make sure the question container is visible
+            const questionContainer = document.getElementById('question-container');
+            if (questionContainer) {
+                questionContainer.classList.remove('hidden');
+                questionContainer.style.display = 'block';
+                console.log('Question container shown');
+            } else {
+                console.error('Question container not found, element ID might be incorrect');
+            }
+            
+            // Start the assessment if the function exists
+            if (typeof startAssessment === 'function') {
+                console.log('Calling startAssessment function...');
+                startAssessment();
+                console.log('Assessment started');
+            } else {
+                console.error('startAssessment function not found. Ensure assessment.js is loaded before main.js');
+            }
+        } else {
+            console.error('Assessment section element not found! Check the HTML for element with id="assessment-section"');
+        }
+        
+        // Update the active navigation
+        updateActiveNavigation('assessment');
+    } catch (error) {
+        console.error('Error in showAssessmentSection:', error);
     }
-    
-    // Update active navigation link
-    updateActiveNavigation('assessment');
 }
 
 function showResultsSection() {
@@ -480,38 +523,34 @@ function showFAQSection() {
 function hideAllSections() {
     console.log('Hiding all sections');
     
-    // Define all section IDs to hide
-    const sectionIds = [
-        'assessment-section',
-        'results-section',
-        'about',
-        'contact',
-        'faq'  // Add FAQ to the list of sections
+    // Get all major sections by ID
+    const sections = [
+        document.getElementById('assessment-section'),
+        document.getElementById('results-section'),
+        document.getElementById('about'),
+        document.getElementById('faq'),
+        document.getElementById('contact'),
+        document.getElementById('welcome-back'),
+        document.getElementById('hero-section'),
+        document.getElementById('social-proof-section')
     ];
     
-    // Hide the hero section
-    const heroSection = document.querySelector('.hero-bg');
-    if (heroSection) {
-        const heroContainer = heroSection.closest('section');
-        if (heroContainer) {
-            heroContainer.classList.add('hidden');
-            console.log('Hero section hidden');
-        }
-    }
-    
-    // Hide the welcome back panel
-    const welcomeBack = document.getElementById('welcome-back');
-    if (welcomeBack) {
-        welcomeBack.classList.add('hidden');
-        console.log('Welcome back panel hidden');
-    }
-    
-    // Hide all main sections
-    sectionIds.forEach(id => {
-        const section = document.getElementById(id);
+    // Hide all sections found
+    sections.forEach(section => {
         if (section) {
             section.classList.add('hidden');
-            console.log(`${id} hidden`);
+            section.style.display = 'none';
+            console.log(`Hidden section: ${section.id}`);
+        }
+    });
+    
+    // Also hide all other top-level sections that might not have IDs
+    const homeContentSections = document.querySelectorAll('main > section:not(#assessment-section):not(#results-section):not(#about):not(#faq):not(#contact):not(#hero-section):not(#social-proof-section)');
+    homeContentSections.forEach(section => {
+        if (section) {
+            section.classList.add('hidden');
+            section.style.display = 'none';
+            console.log(`Hidden section without ID: ${section.className}`);
         }
     });
 }
@@ -752,17 +791,49 @@ function checkForReturningUser() {
 
 // Display saved results
 function displaySavedResults() {
-    // Get saved results
-    const savedBiases = getFromLocalStorage(STORAGE_KEYS.USER_BIASES);
+    console.log('Displaying saved results');
     
-    console.log('Displaying saved results:', savedBiases);
-    
-    // Check if we have the display function from assessment module
-    if (typeof displayResults === 'function') {
-        displayResults(savedBiases);
-    } else {
-        // Fall back to our own display function
-        displaySharedResults(savedBiases);
+    try {
+        // Hide all sections
+        hideAllSections();
+        
+        // Get saved results
+        const savedResults = getFromLocalStorage('fda_results');
+        
+        if (savedResults) {
+            console.log('Found saved results');
+            
+            // Show results section
+            const resultsSection = document.getElementById('results-section');
+            if (resultsSection) {
+                resultsSection.classList.remove('hidden');
+                resultsSection.style.display = 'block';
+                console.log('Results section shown');
+                
+                // Update navigation
+                window.location.hash = 'results';
+                updateActiveNavigation('results');
+                
+                // Display results
+                const parsedResults = JSON.parse(savedResults);
+                if (typeof displayResults === 'function') {
+                    displayResults(parsedResults);
+                    console.log('Results displayed successfully');
+                } else {
+                    console.error('displayResults function not available');
+                }
+            } else {
+                console.error('Results section not found');
+            }
+        } else {
+            console.log('No saved results found, taking user to assessment');
+            navigateTo('assessment');
+            showNotification('No saved results found. Please take the assessment first.', 'info');
+        }
+    } catch (error) {
+        console.error('Error displaying saved results:', error);
+        showNotification('There was an error loading your results. Please try again.', 'error');
+        navigateTo('home');
     }
 }
 
@@ -1757,6 +1828,24 @@ function exportResultsToPDF() {
             doc.text(`Page ${i} of ${pageCount}`, pageWidth - margin, footerY, { align: 'right' });
         }
         
+        // Add implementation tips box with modern styling
+        if (yPos < pageHeight - 100) {
+            yPos = addImplementationTipsBox(doc, yPos);
+        } else {
+            // Add a new page if not enough space
+            doc.addPage();
+                    
+            // Add header to new page
+            doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+            doc.rect(0, 0, pageWidth, 15, 'F');
+                    
+            setFont(fonts.body, colors.white);
+            doc.text('Financial Personality Assessment - Implementation Guide', pageWidth / 2, 10, { align: 'center' });
+                    
+            yPos = 25;
+            yPos = addImplementationTipsBox(doc, yPos);
+        }
+        
         // Save the PDF
         doc.save('financial-personality-assessment.pdf');
         console.log('PDF saved successfully using jsPDF');
@@ -2114,38 +2203,34 @@ function drawBiasCard(name, score, description, effects, y) {
 function hideAllSections() {
     console.log('Hiding all sections');
     
-    // Define all section IDs to hide
-    const sectionIds = [
-        'assessment-section',
-        'results-section',
-        'about',
-        'contact',
-        'faq'  // Add FAQ to the list of sections
+    // Get all major sections by ID
+    const sections = [
+        document.getElementById('assessment-section'),
+        document.getElementById('results-section'),
+        document.getElementById('about'),
+        document.getElementById('faq'),
+        document.getElementById('contact'),
+        document.getElementById('welcome-back'),
+        document.getElementById('hero-section'),
+        document.getElementById('social-proof-section')
     ];
     
-    // Hide the hero section
-    const heroSection = document.querySelector('.hero-bg');
-    if (heroSection) {
-        const heroContainer = heroSection.closest('section');
-        if (heroContainer) {
-            heroContainer.classList.add('hidden');
-            console.log('Hero section hidden');
-        }
-    }
-    
-    // Hide the welcome back panel
-    const welcomeBack = document.getElementById('welcome-back');
-    if (welcomeBack) {
-        welcomeBack.classList.add('hidden');
-        console.log('Welcome back panel hidden');
-    }
-    
-    // Hide all main sections
-    sectionIds.forEach(id => {
-        const section = document.getElementById(id);
+    // Hide all sections found
+    sections.forEach(section => {
         if (section) {
             section.classList.add('hidden');
-            console.log(`${id} hidden`);
+            section.style.display = 'none';
+            console.log(`Hidden section: ${section.id}`);
+        }
+    });
+    
+    // Also hide all other top-level sections that might not have IDs
+    const homeContentSections = document.querySelectorAll('main > section:not(#assessment-section):not(#results-section):not(#about):not(#faq):not(#contact):not(#hero-section):not(#social-proof-section)');
+    homeContentSections.forEach(section => {
+        if (section) {
+            section.classList.add('hidden');
+            section.style.display = 'none';
+            console.log(`Hidden section without ID: ${section.className}`);
         }
     });
 }
@@ -2292,7 +2377,7 @@ function drawPersonalityCard(name, description, strengths, y, color, isSecondary
     
     // Add a decorative quote mark for the description
     setFont({font: 'helvetica', style: 'bold', size: 24}, [color[0], color[1], color[2], 0.2]);
-    doc.text(""", margin + cardMargin * 2, y + 2);
+    doc.text('"', margin + cardMargin * 2, y + 2);
     
     // Add description text
     setFont({font: 'helvetica', style: 'normal', size: 11}, colors.dark);
@@ -2516,33 +2601,4 @@ function addImplementationTipsBox(doc, yPos) {
     
     return yPos + tipsHeight + 5;
 }
-            
-// Later in the PDF generation, replace the existing implementation tips code with:
-
-// Add implementation tips box with modern styling
-if (yPos < pageHeight - 100) {
-    yPos = addImplementationTipsBox(doc, yPos);
-} else {
-    // Add a new page if not enough space
-    doc.addPage();
-                
-    // Add header to new page
-    doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
-    doc.rect(0, 0, pageWidth, 15, 'F');
-                
-    setFont(fonts.body, colors.white);
-    doc.text('Financial Personality Assessment - Implementation Guide', pageWidth / 2, 10, { align: 'center' });
-                
-    yPos = 25;
-    yPos = addImplementationTipsBox(doc, yPos);
-}
     
-    } catch (error) {
-        console.error('Error generating PDF with jsPDF:', error);
-        showNotification('There was an error exporting to PDF. Please try again.', 'error');
-    }
-}
-    
-    } catch (error) {
-        console.error('Error generating PDF with jsPDF:', error);
-} 

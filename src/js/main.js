@@ -75,6 +75,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Application Router
 function initRouter() {
+    console.log('Router initialized');
+    
     // Define routes and their handlers
     const routes = {
         '': () => navigateTo('home'),  // Default route redirects to #home
@@ -87,10 +89,16 @@ function initRouter() {
     };
     
     // Initial route handling on page load
-    handleRouteChange();
+    setTimeout(() => {
+        console.log('Initial route handling...');
+        handleRouteChange();
+    }, 100); // Small delay to ensure DOM is fully processed
     
     // Listen for hash changes
-    window.addEventListener('hashchange', handleRouteChange);
+    window.addEventListener('hashchange', function() {
+        console.log('Hash changed event detected to:', window.location.hash);
+        handleRouteChange();
+    });
     
     // Update navigation links to use hash-based routing
     updateNavigationLinks();
@@ -100,13 +108,23 @@ function initRouter() {
         const hash = window.location.hash || '#home';
         const routeKey = hash.split('?')[0].replace('#', '');
         console.log('🔍 ROUTE CHANGE DETECTED:', hash, 'Route key:', routeKey);
-        console.trace('Route change call stack:');
+        
+        // Try to fix any UI state issues first
+        hideAllSections();
         
         // If we have a handler for this route, call it
         if (routes[routeKey]) {
-            routes[routeKey]();
+            console.log('Executing route handler for:', routeKey);
+            try {
+                routes[routeKey]();
+            } catch(e) {
+                console.error('Error in route handler:', e);
+                // Fallback to home on error
+                showHomeSection();
+            }
         } else {
             // Default to home for unknown routes
+            console.log('Unknown route, defaulting to home');
             showHomeSection();
         }
         

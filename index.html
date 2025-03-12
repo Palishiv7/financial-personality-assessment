@@ -816,5 +816,50 @@
             }
         });
     </script>
+
+    <!-- Template for Contact/About sections -->
+    <template id="contact-template">
+        <!-- ... existing code ... -->
+    </template>
+
+    <!-- Add debugging script before other scripts -->
+    <script>
+        // Navigation debugging
+        console.log('DEBUG: Document loaded');
+        
+        // Log hash changes
+        window.addEventListener('hashchange', function() {
+            console.log('DEBUG: Hash changed to:', window.location.hash);
+        });
+        
+        // Add direct event listeners to important navigation elements
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DEBUG: DOM Content Loaded');
+            
+            // Log Start Assessment button
+            const startBtn = document.getElementById('hero-start-assessment');
+            if (startBtn) {
+                console.log('DEBUG: Start Assessment button found');
+                startBtn.addEventListener('click', function() {
+                    console.log('DEBUG: Start Assessment button clicked');
+                    window.location.hash = 'assessment';
+                    console.log('DEBUG: Hash set to #assessment');
+                });
+            } else {
+                console.log('DEBUG: Start Assessment button NOT found');
+            }
+            
+            // Log Home link
+            const homeLink = document.querySelector('a[href="#home"]');
+            if (homeLink) {
+                console.log('DEBUG: Home link found');
+                homeLink.addEventListener('click', function(e) {
+                    console.log('DEBUG: Home link clicked');
+                });
+            } else {
+                console.log('DEBUG: Home link NOT found');
+            }
+        });
+    </script>
 </body>
 </html> 

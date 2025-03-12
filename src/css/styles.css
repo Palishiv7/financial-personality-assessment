@@ -1,0 +1,498 @@
+/* Custom styles beyond Tailwind */
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    /* Reduce animation complexity on mobile */
+    .slide-in-left, .slide-in-right, .slide-in-up {
+        animation: simpleFadeIn 0.4s ease-in-out;
+    }
+    
+    /* Use simpler animations for mobile */
+    @keyframes simpleFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    /* Optimize button animations */
+    button::after {
+        display: none;
+    }
+    
+    /* Adjust hero section for mobile */
+    .hero-bg {
+        animation: gradientBG 30s ease infinite; /* Slower animation for mobile */
+    }
+    
+    /* Optimize transitions */
+    * {
+        transition-duration: 0.2s !important; /* Faster transitions on mobile */
+    }
+    
+    /* Improved text readability on mobile */
+    p, li {
+        font-size: 16px !important; 
+        line-height: 1.5 !important;
+    }
+    
+    /* Better spacing for mobile forms */
+    input, select, textarea, button[type="submit"] {
+        margin-bottom: 12px;
+        padding: 10px !important;
+        font-size: 16px !important; /* Prevents iOS zoom on focus */
+    }
+    
+    /* Assessment container improvements */
+    #question-container {
+        padding: 16px !important;
+    }
+    
+    /* Fix grid layouts on small screens */
+    .grid {
+        grid-gap: 16px !important;
+    }
+    
+    /* Improve tap targets */
+    a, button, .clickable {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 8px;
+    }
+}
+
+/* Small phones (iPhone SE, etc) */
+@media (max-width: 375px) {
+    h1 {
+        font-size: 1.75rem !important;
+    }
+    
+    h2 {
+        font-size: 1.5rem !important;
+    }
+    
+    h3 {
+        font-size: 1.25rem !important;
+    }
+    
+    .container {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+}
+
+/* Custom animations */
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.slide-in-right {
+    animation: slideInRight 0.5s ease-in-out;
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(30px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.slide-in-left {
+    animation: slideInLeft 0.5s ease-in-out;
+}
+
+@keyframes slideInLeft {
+    from { transform: translateX(-30px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.slide-in-up {
+    animation: slideInUp 0.5s ease-in-out;
+}
+
+@keyframes slideInUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.pulse-strong {
+    animation: pulseStrong 2s infinite;
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0.4);
+}
+
+@keyframes pulseStrong {
+    0% { 
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+    }
+    70% { 
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+    }
+    100% { 
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+}
+
+/* Section transitions */
+section {
+    transition: opacity 0.3s ease-in-out;
+}
+
+section.hidden {
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+}
+
+section:not(.hidden) {
+    animation: sectionEnter 0.7s ease-in-out;
+}
+
+@keyframes sectionEnter {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Button animations */
+button {
+    position: relative;
+    overflow: hidden;
+    transform: translate3d(0, 0, 0);
+}
+
+button::after {
+    content: "";
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+    background-repeat: no-repeat;
+    background-position: 50%;
+    transform: scale(10, 10);
+    opacity: 0;
+    transition: transform 0.5s, opacity 1s;
+}
+
+button:active::after {
+    transform: scale(0, 0);
+    opacity: 0.3;
+    transition: 0s;
+}
+
+/* Improved hover effects */
+.option-container {
+    transition: all 0.2s ease-in-out;
+}
+
+.option-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Radio button custom styling */
+.custom-radio input[type="radio"] {
+    display: none;
+}
+
+.custom-radio label {
+    display: inline-block;
+    background-color: #f3f4f6;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin: 5px 0;
+    width: 100%;
+}
+
+.custom-radio input[type="radio"]:checked + label {
+    background-color: #2563eb;
+    color: white;
+}
+
+/* Progress bar */
+.progress-bar {
+    height: 8px;
+    background-color: #e5e7eb;
+    border-radius: 4px;
+    margin: 20px 0;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: #2563eb;
+    transition: width 0.3s ease;
+}
+
+/* Animated background for hero section */
+.hero-bg {
+    background: linear-gradient(-45deg, #3b82f6, #1d4ed8, #3b82f6, #60a5fa);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Loading indicators */
+.loading-spinner {
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 3px solid #2563eb;
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Bias card enhancements */
+.bias-card {
+    border-left: 4px solid;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    background-color: #f9fafb;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.bias-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.bias-card.high {
+    border-left-color: #ef4444;
+}
+
+.bias-card.medium {
+    border-left-color: #f59e0b;
+}
+
+.bias-card.low {
+    border-left-color: #10b981;
+}
+
+/* Strategy card styling */
+.strategy-card {
+    border: 1px solid #e5e7eb;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    background-color: #f9fafb;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.strategy-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Comparison result styles */
+.comparison-result {
+    border: 1px solid #e5e7eb;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+.comparison-table th, 
+.comparison-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.comparison-table th {
+    background-color: #f9fafb;
+    font-weight: 600;
+}
+
+/* Tooltip styles */
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted #4b5563;
+    cursor: help;
+}
+
+.tooltip .tooltip-text {
+    visibility: hidden;
+    width: 200px;
+    background-color: #1f2937;
+    color: white;
+    text-align: center;
+    border-radius: 6px;
+    padding: 10px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Add styles for active navigation links */
+.active-nav-link {
+    color: #3b82f6 !important; /* Blue color for active link */
+    font-weight: 600;
+    border-bottom: 2px solid #3b82f6;
+}
+
+/* Ensure hidden sections are properly hidden */
+.hidden {
+    display: none !important;
+}
+
+/* Advisor UI styles */
+.advisor-card {
+    transition: all 0.3s ease;
+}
+
+.advisor-card:hover {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Chat message styles */
+.message {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.user-message {
+    text-align: right;
+}
+
+.advisor-message {
+    text-align: left;
+}
+
+/* Typing indicator animation */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 20px;
+}
+
+.typing-indicator span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin: 0 2px;
+    background-color: #3B82F6;
+    border-radius: 50%;
+    opacity: 0.6;
+}
+
+.typing-indicator span:nth-child(1) {
+    animation: bounceAnimation 1.2s infinite 0.1s;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation: bounceAnimation 1.2s infinite 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+    animation: bounceAnimation 1.2s infinite 0.3s;
+}
+
+@keyframes bounceAnimation {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+/* Error message styling */
+.message.error .bg-gray-100 {
+    border-color: #EF4444;
+    background-color: #FEF2F2;
+}
+
+/* Bias tag styling */
+.bias-tag {
+    display: inline-block;
+    background-color: #DBEAFE;
+    color: #1E40AF;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    margin-right: 4px;
+    margin-bottom: 4px;
+}
+
+/* Animation for new messages */
+@keyframes fadeIn {
+    from { 
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Custom scrollbar for message container */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: #F3F4F6;
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: #D1D5DB;
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #9CA3AF;
+} 

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Sharing Test Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        .card {
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-12">
+        <div class="max-w-2xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="p-6">
+                <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">URL Sharing Test Tool</h1>
+                <p class="text-gray-600 mb-8">
+                    This tool helps test the URL parameter sharing functionality by generating test URLs with 
+                    pre-defined bias assessment results. Click on any preset to open a new tab with the 
+                    corresponding shared results.
+                </p>
+                
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Sample Bias Profiles</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <!-- Profile 1: Overconfidence Dominant -->
+                    <div class="card border rounded-lg p-4 bg-blue-50 cursor-pointer" id="profile1">
+                        <h3 class="font-bold text-lg text-blue-800">Overconfidence Dominant</h3>
+                        <p class="text-sm text-gray-600 mb-2">High overconfidence, moderate loss aversion, low anchoring</p>
+                        <div class="flex items-center mt-2">
+                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Overconfidence: 9/10</span>
+                            <span class="ml-auto text-blue-700 text-sm">View &rarr;</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Profile 2: Loss Aversion Dominant -->
+                    <div class="card border rounded-lg p-4 bg-red-50 cursor-pointer" id="profile2">
+                        <h3 class="font-bold text-lg text-red-800">Loss Aversion Dominant</h3>
+                        <p class="text-sm text-gray-600 mb-2">High loss aversion, moderate herding, low recency</p>
+                        <div class="flex items-center mt-2">
+                            <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">Loss Aversion: 9/10</span>
+                            <span class="ml-auto text-red-700 text-sm">View &rarr;</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Profile 3: Balanced Biases -->
+                    <div class="card border rounded-lg p-4 bg-green-50 cursor-pointer" id="profile3">
+                        <h3 class="font-bold text-lg text-green-800">Balanced Biases</h3>
+                        <p class="text-sm text-gray-600 mb-2">Moderate scores across all five biases</p>
+                        <div class="flex items-center mt-2">
+                            <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">All Biases: 5-6/10</span>
+                            <span class="ml-auto text-green-700 text-sm">View &rarr;</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Profile 4: Extreme High -->
+                    <div class="card border rounded-lg p-4 bg-purple-50 cursor-pointer" id="profile4">
+                        <h3 class="font-bold text-lg text-purple-800">Extreme High</h3>
+                        <p class="text-sm text-gray-600 mb-2">Very high scores across all five biases</p>
+                        <div class="flex items-center mt-2">
+                            <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">All Biases: 8-10/10</span>
+                            <span class="ml-auto text-purple-700 text-sm">View &rarr;</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="border-t pt-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Custom Test URL</h2>
+                    <p class="text-gray-600 mb-4 text-sm">
+                        You can also create a custom URL by defining the bias levels below:
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Loss Aversion (1-10)</label>
+                            <input type="range" min="1" max="10" value="5" class="w-full" id="loss-aversion">
+                            <div class="flex justify-between text-xs text-gray-500">
+                                <span>1</span>
+                                <span>5</span>
+                                <span>10</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Overconfidence (1-10)</label>
+                            <input type="range" min="1" max="10" value="5" class="w-full" id="overconfidence">
+                            <div class="flex justify-between text-xs text-gray-500">
+                                <span>1</span>
+                                <span>5</span>
+                                <span>10</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Recency Bias (1-10)</label>
+                            <input type="range" min="1" max="10" value="5" class="w-full" id="recency">
+                            <div class="flex justify-between text-xs text-gray-500">
+                                <span>1</span>
+                                <span>5</span>
+                                <span>10</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Herding Bias (1-10)</label>
+                            <input type="range" min="1" max="10" value="5" class="w-full" id="herding">
+                            <div class="flex justify-between text-xs text-gray-500">
+                                <span>1</span>
+                                <span>5</span>
+                                <span>10</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Anchoring Bias (1-10)</label>
+                            <input type="range" min="1" max="10" value="5" class="w-full" id="anchoring">
+                            <div class="flex justify-between text-xs text-gray-500">
+                                <span>1</span>
+                                <span>5</span>
+                                <span>10</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button id="generate-custom" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200">
+                        Generate Custom Test URL
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Bias data for reference
+        const biasData = {
+            loss_aversion: {
+                id: 'loss_aversion',
+                name: 'Loss Aversion',
+                description: 'The tendency to prefer avoiding losses over acquiring equivalent gains.',
+                strategies: [
+                    'Set predetermined sell points for investments before you buy them.',
+                    'Evaluate investments based on future prospects, not past performance or purchase price.'
+                ]
+            },
+            overconfidence: {
+                id: 'overconfidence',
+                name: 'Overconfidence Bias',
+                description: 'The tendency to overestimate one\'s abilities, knowledge, and the precision of one\'s information.',
+                strategies: [
+                    'Keep a decision journal documenting your financial choices and review it regularly.',
+                    'Actively seek out contradictory opinions before making major financial decisions.'
+                ]
+            },
+            recency: {
+                id: 'recency',
+                name: 'Recency Bias',
+                description: 'The tendency to place too much emphasis on recent events while ignoring historical context.',
+                strategies: [
+                    'Study historical market cycles to gain broader perspective.',
+                    'Create a long-term financial plan and revisit it before making changes based on current events.'
+                ]
+            },
+            herding: {
+                id: 'herding',
+                name: 'Herding Bias',
+                description: 'The tendency to follow what others are doing rather than making independent decisions.',
+                strategies: [
+                    'Develop your own investment criteria and stick to them regardless of popular trends.',
+                    'Limit your consumption of financial media, especially during volatile markets.'
+                ]
+            },
+            anchoring: {
+                id: 'anchoring',
+                name: 'Anchoring Bias',
+                description: 'The tendency to rely too heavily on the first piece of information encountered.',
+                strategies: [
+                    'Research fair values independently before looking at asking prices.',
+                    'Consider multiple reference points when evaluating prices, not just the most obvious one.'
+                ]
+            }
+        };
+
+        // Sample bias profiles
+        const profiles = {
+            profile1: [
+                { ...biasData.overconfidence, score: 9 },
+                { ...biasData.loss_aversion, score: 7 },
+                { ...biasData.herding, score: 6 },
+                { ...biasData.recency, score: 5 },
+                { ...biasData.anchoring, score: 3 }
+            ],
+            profile2: [
+                { ...biasData.loss_aversion, score: 9 },
+                { ...biasData.herding, score: 7 },
+                { ...biasData.recency, score: 5 },
+                { ...biasData.overconfidence, score: 4 },
+                { ...biasData.anchoring, score: 3 }
+            ],
+            profile3: [
+                { ...biasData.overconfidence, score: 6 },
+                { ...biasData.loss_aversion, score: 6 },
+                { ...biasData.herding, score: 5 },
+                { ...biasData.recency, score: 5 },
+                { ...biasData.anchoring, score: 5 }
+            ],
+            profile4: [
+                { ...biasData.overconfidence, score: 10 },
+                { ...biasData.loss_aversion, score: 9 },
+                { ...biasData.herding, score: 9 },
+                { ...biasData.recency, score: 8 },
+                { ...biasData.anchoring, score: 8 }
+            ]
+        };
+
+        // Generate a URL with the given bias results
+        function generateUrl(biasResults) {
+            // Create simplified version of biases for sharing
+            const simplifiedBiases = biasResults.map(bias => ({
+                id: bias.id,
+                name: bias.name,
+                score: bias.score,
+                description: bias.description,
+                strategies: bias.strategies ? bias.strategies.slice(0, 2) : []
+            }));
+            
+            // Encode the data
+            const encodedData = btoa(JSON.stringify(simplifiedBiases));
+            
+            // Create URL with parameters - use relative path
+            const url = new URL('./index.html', window.location.href);
+            url.searchParams.set('results', encodedData);
+            url.searchParams.set('source', 'test-tool');
+            
+            return url.toString();
+        }
+
+        // Add event listeners to the profile cards
+        document.getElementById('profile1').addEventListener('click', () => {
+            const url = generateUrl(profiles.profile1);
+            window.open(url, '_blank');
+        });
+
+        document.getElementById('profile2').addEventListener('click', () => {
+            const url = generateUrl(profiles.profile2);
+            window.open(url, '_blank');
+        });
+
+        document.getElementById('profile3').addEventListener('click', () => {
+            const url = generateUrl(profiles.profile3);
+            window.open(url, '_blank');
+        });
+
+        document.getElementById('profile4').addEventListener('click', () => {
+            const url = generateUrl(profiles.profile4);
+            window.open(url, '_blank');
+        });
+
+        // Generate custom URL based on slider values
+        document.getElementById('generate-custom').addEventListener('click', () => {
+            const lossAversionValue = parseInt(document.getElementById('loss-aversion').value);
+            const overconfidenceValue = parseInt(document.getElementById('overconfidence').value);
+            const recencyValue = parseInt(document.getElementById('recency').value);
+            const herdingValue = parseInt(document.getElementById('herding').value);
+            const anchoringValue = parseInt(document.getElementById('anchoring').value);
+            
+            // Create results array sorted by score (highest first)
+            let customResults = [
+                { ...biasData.loss_aversion, score: lossAversionValue },
+                { ...biasData.overconfidence, score: overconfidenceValue },
+                { ...biasData.recency, score: recencyValue },
+                { ...biasData.herding, score: herdingValue },
+                { ...biasData.anchoring, score: anchoringValue }
+            ];
+            
+            // Sort by score (highest first)
+            customResults.sort((a, b) => b.score - a.score);
+            
+            const url = generateUrl(customResults);
+            window.open(url, '_blank');
+        });
+    </script>
+</body>
+</html> 

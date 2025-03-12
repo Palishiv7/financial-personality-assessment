@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Sitemap: https://financialpersonality.com/sitemap.xml
+
+# Allow all bots to crawl all content
+# This is a fully public site with no restricted areas 

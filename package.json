@@ -1,0 +1,17 @@
+{
+  "name": "financial-personality-assessment",
+  "version": "1.0.0",
+  "description": "A tool to help individuals understand their financial personality types and identify cognitive biases",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 6969"
+  },
+  "keywords": [
+    "financial-personality",
+    "cognitive-bias",
+    "financial-assessment",
+    "personal-finance"
+  ],
+  "author": "",
+  "license": "MIT"
+} 

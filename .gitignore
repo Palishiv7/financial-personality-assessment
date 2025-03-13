@@ -47,5 +47,8 @@ Thumbs.db
 # Miscellaneous
 *.bak
 *.tmp
-*.temp AIGentLanguage.md
+*.temp
+
+# Documentation files (local only)
+AIGentLanguage.md
 EMAILJS_SETUP.md

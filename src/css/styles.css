@@ -5,8 +5,152 @@ html {
     scroll-behavior: smooth;
 }
 
+/* Base desktop container styles */
+.container {
+    width: 100%;
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Mobile-first styles - these apply to all devices by default */
+body, html {
+    overflow-x: hidden;
+    max-width: 100vw;
+    width: 100%;
+}
+
+main {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+/* Properly size containers for mobile */
+.container {
+    width: 100%;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+/* Fixed header height to prevent layout shifts */
+header.fixed {
+    height: 60px; /* Set a fixed height */
+}
+
+header .container {
+    height: 100%;
+}
+
+/* Progress tracker styling to prevent layout shifts */
+#progress-tracker {
+    position: absolute;
+    right: 60px; /* Position to the left of the menu button */
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#progress-tracker:not(.hidden) {
+    opacity: 1;
+    visibility: visible;
+}
+
+@media (min-width: 768px) {
+    #progress-tracker {
+        right: 180px; /* Position to the left of desktop navigation */
+    }
+}
+
+/* Mobile menu button positioning */
+#mobile-menu-button {
+    position: relative;
+    z-index: 5;
+}
+
+/* Hero section mobile defaults */
+#hero-section {
+    min-height: auto;
+    width: 100%;
+    padding: 2rem 1rem !important;
+    border-radius: 0.5rem;
+}
+
+#hero-section h2 {
+    font-size: 1.75rem;
+    line-height: 1.2;
+}
+
+#hero-section p {
+    font-size: 1rem;
+    line-height: 1.4;
+}
+
+/* Social proof mobile defaults */
+#social-proof-section .flex-col {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+#social-proof-section .w-full {
+    width: 100%;
+    max-width: 100%;
+    text-align: center;
+}
+
+/* Desktop-specific styles */
+@media (min-width: 768px) {
+    /* Ensure desktop navigation is always visible at desktop sizes */
+    nav.hidden.md\:block,
+    nav.hidden.md\:flex {
+        display: flex !important;
+    }
+    
+    /* Site title hover effect */
+    h1 a:hover {
+        opacity: 0.9;
+        text-decoration: none;
+    }
+
+    /* Desktop specific styles */
+    #hero-section {
+        padding: 3rem !important;
+    }
+    
+    #hero-section h2 {
+        font-size: 2.5rem !important;
+    }
+    
+    #hero-section p {
+        font-size: 1.25rem !important;
+    }
+    
+    /* Social proof section */
+    #social-proof-section .flex-col {
+        flex-direction: row !important;
+        justify-content: center !important;
+        gap: 2rem !important;
+    }
+    
+    /* Ensure the testimonial grid shows correctly */
+    .grid.md\:grid-cols-3 {
+        display: grid !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+    
+    /* Container size for desktop */
+    .container {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+}
+
 /* Mobile optimizations */
-@media (max-width: 768px) {
+@media (max-width: 767.98px) {
     /* Reduce animation complexity on mobile */
     .slide-in-left, .slide-in-right, .slide-in-up {
         animation: simpleFadeIn 0.4s ease-in-out;
@@ -62,12 +206,94 @@ html {
         min-width: 44px;
         padding: 8px;
     }
+    
+    /* Site title on mobile */
+    h1 {
+        font-size: 1.5rem !important;
+    }
+    
+    h1 a {
+        padding: 8px 8px 8px 0 !important;
+    }
+
+    /* Hero section adjustments */
+    #hero-section h2 {
+        font-size: 2rem !important;
+    }
+
+    #hero-section p {
+        font-size: 1rem !important;
+    }
+
+    /* Improve mobile navigation */
+    #mobile-menu {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        position: fixed; /* Change to fixed to ensure it stays in place during scroll */
+        top: 60px;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        opacity: 0;
+        transform: translateY(-10px);
+        pointer-events: none;
+        display: none; /* Explicitly hide by default */
+    }
+
+    #mobile-menu.hidden {
+        display: none !important;
+        opacity: 0 !important;
+        transform: translateY(-10px) !important;
+        pointer-events: none !important;
+    }
+
+    #mobile-menu.open {
+        display: block !important;
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+    
+    #mobile-menu-button {
+        transition: all 0.3s ease;
+    }
+    
+    #mobile-menu-button:hover {
+        transform: scale(1.05);
+    }
+
+    /* Top margin adjustment for content below fixed header */
+    main {
+        margin-top: 60px !important;
+    }
+
+    /* Improve social proof section on mobile */
+    #social-proof-section .flex-col {
+        gap: 1rem;
+    }
+}
+
+/* Site title styles */
+h1 a {
+    color: inherit;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: inline-block;
+}
+
+h1 a:hover {
+    text-decoration: none;
+    transform: scale(1.02);
+}
+
+h1 a:active {
+    transform: scale(0.98);
 }
 
 /* Small phones (iPhone SE, etc) */
 @media (max-width: 375px) {
     h1 {
-        font-size: 1.75rem !important;
+        font-size: 1.5rem !important;
     }
     
     h2 {
@@ -81,6 +307,362 @@ html {
     .container {
         padding-left: 12px !important;
         padding-right: 12px !important;
+    }
+
+    /* Fix issue with header height */
+    header.fixed {
+        height: 60px !important;
+        min-height: 60px !important;
+        max-height: 60px !important;
+    }
+    
+    /* Position for progress tracker on small phones */
+    #progress-tracker {
+        right: 50px !important;
+        max-height: 24px !important;
+        padding-top: 1px !important;
+        padding-bottom: 1px !important;
+        font-size: 0.7rem !important; /* Smaller text */
+    }
+    
+    #progress-tracker svg {
+        width: 14px !important;
+        height: 14px !important;
+    }
+    
+    /* Ensure main content doesn't get hidden behind header */
+    main {
+        padding-top: 60px !important;
+    }
+    
+    /* Optimal margin for assessment section */
+    #assessment-section {
+        margin-top: 65px !important;
+    }
+
+    /* Additional adjustments for very small screens */
+    #hero-section {
+        padding: 1rem 0.75rem !important;
+    }
+    
+    #hero-section h2 {
+        font-size: 1.75rem !important;
+        line-height: 1.2 !important;
+        margin-bottom: 0.75rem !important;
+    }
+
+    #hero-section p {
+        font-size: 0.9rem !important;
+        line-height: 1.4 !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    .text-xl {
+        font-size: 0.9rem !important;
+    }
+
+    #hero-start-assessment {
+        padding: 0.6rem 1.25rem !important;
+        font-size: 0.9rem !important;
+    }
+    
+    /* Optimize spacing for tiny screens */
+    section {
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+    }
+    
+    /* Further reduce font sizes */
+    p {
+        font-size: 0.9rem !important;
+        line-height: 1.4 !important;
+    }
+    
+    /* Ensure buttons are usable */
+    button, .button {
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Fix the social proof section for very small screens */
+    #social-proof-section h2 {
+        font-size: 2.5rem !important;
+        line-height: 1 !important;
+    }
+    
+    #social-proof-section p {
+        font-size: 0.9rem !important;
+    }
+    
+    /* Main content spacing */
+    main {
+        margin-top: 50px !important;
+    }
+    
+    /* Fix any flex layouts that might break */
+    .flex {
+        flex-wrap: wrap;
+    }
+    
+    /* Adjust the financial personality type heading */
+    #hero-section h2.text-4xl {
+        font-size: 1.5rem !important;
+        line-height: 1.2 !important;
+    }
+    
+    /* Make sure content doesn't overflow */
+    .overflow-hidden {
+        overflow: hidden !important;
+    }
+}
+
+/* Extra small phones (iPhone SE, Galaxy S5, etc) */
+@media (max-width: 320px) {
+    /* Extremely tight constraints for the smallest screens */
+    h1 {
+        font-size: 1.25rem !important;
+    }
+    
+    h2 {
+        font-size: 1.25rem !important;
+    }
+    
+    #hero-section h2 {
+        font-size: 1.5rem !important;
+    }
+    
+    #social-proof-section h2 {
+        font-size: 2rem !important;
+    }
+    
+    .container {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+    }
+    
+    p {
+        font-size: 0.85rem !important;
+    }
+    
+    /* Make the hero button more compact */
+    #hero-start-assessment {
+        padding: 0.5rem 1rem !important;
+        font-size: 0.8rem !important;
+    }
+    
+    /* Smaller star icons */
+    .text-yellow-400 svg {
+        height: 14px !important;
+        width: 14px !important;
+    }
+    
+    /* Fix the 50,000+ counter and text */
+    #social-proof-section .text-4xl {
+        font-size: 1.75rem !important;
+    }
+    
+    /* Less padding for content sections */
+    section {
+        padding: 0.75rem !important;
+    }
+    
+    /* Fix hero section container for iPhone SE */
+    #hero-section {
+        width: calc(100% - 16px) !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        min-height: auto !important;
+        padding: 1rem 0.5rem !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Fix social proof boxes for iPhone SE */
+    #social-proof-section .flex-col > div {
+        width: 100% !important;
+        margin-bottom: 0.75rem !important;
+    }
+    
+    /* Reduce margins */
+    .my-4 {
+        margin-top: 0.5rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    /* Adjust main content area */
+    main {
+        margin-top: 40px !important;
+        padding-top: 0.5rem !important;
+    }
+}
+
+/* Medium-sized phones (iPhone XR, iPhone 11, etc) */
+@media (min-width: 321px) and (max-width: 414px) {
+    /* Optimize assessment section for iPhone XR */
+    #assessment-section {
+        padding: 1rem !important;
+        width: calc(100% - 16px) !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        margin-top: 68px !important; /* Adjusted for the fixed header */
+    }
+    
+    /* Fix issue with header height */
+    header.fixed {
+        height: 60px !important;
+        min-height: 60px !important;
+        max-height: 60px !important;
+    }
+    
+    /* Position for progress tracker on iPhone XR */
+    #progress-tracker {
+        right: 54px !important;
+        max-height: 28px !important;
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+    }
+    
+    /* Fix question container */
+    #question-container {
+        padding: 0 !important;
+    }
+    
+    /* Fix option containers */
+    .option-container {
+        padding: 0.75rem !important;
+        margin-bottom: 0.5rem !important;
+        width: 100% !important;
+    }
+    
+    /* Ensure text doesn't overflow */
+    .option-container span {
+        font-size: 0.9rem !important;
+        line-height: 1.3 !important;
+        display: inline-block !important;
+        width: calc(100% - 20px) !important;
+    }
+    
+    /* Adjust radio buttons */
+    .option-container input[type="radio"] {
+        margin-right: 0.5rem !important;
+        min-width: 16px !important;
+        min-height: 16px !important;
+    }
+    
+    /* Fix question text size */
+    #question-container h4 {
+        font-size: 1.1rem !important;
+        line-height: 1.4 !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    /* Adjust progress bar */
+    #progress-bar {
+        height: 6px !important;
+    }
+    
+    /* Fix button layout at bottom */
+    #assessment-section .flex.justify-between {
+        margin-top: 1rem !important;
+    }
+    
+    /* Adjust button sizes */
+    #prev-question, #next-question {
+        padding: 0.5rem 1rem !important;
+        font-size: 0.9rem !important;
+    }
+    
+    /* Make sure form elements don't overflow */
+    form, input, select, textarea {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Ensure main content doesn't get hidden behind header */
+    main {
+        padding-top: 60px !important;
+    }
+}
+
+/* Larger phones (iPhone 12/13/14/15, etc) */
+@media (min-width: 415px) and (max-width: 428px) {
+    /* Optimize assessment section for newer iPhones */
+    #assessment-section {
+        padding: 1.25rem !important;
+        width: calc(100% - 24px) !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        margin-top: 68px !important; /* Adjusted for the fixed header */
+    }
+    
+    /* Fix issue with header height */
+    header.fixed {
+        height: 60px !important;
+        min-height: 60px !important;
+        max-height: 60px !important;
+    }
+    
+    /* Position for progress tracker on larger iPhones */
+    #progress-tracker {
+        right: 54px !important;
+        max-height: 28px !important;
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+    }
+    
+    /* Fix question container */
+    #question-container {
+        padding: 0 !important;
+    }
+    
+    /* Fix option containers */
+    .option-container {
+        padding: 0.85rem !important;
+        margin-bottom: 0.5rem !important;
+        width: 100% !important;
+    }
+    
+    /* Ensure text doesn't overflow */
+    .option-container span {
+        font-size: 0.95rem !important;
+        line-height: 1.4 !important;
+        display: inline-block !important;
+        width: calc(100% - 24px) !important;
+    }
+    
+    /* Adjust radio buttons */
+    .option-container input[type="radio"] {
+        margin-right: 0.5rem !important;
+        min-width: 18px !important;
+        min-height: 18px !important;
+    }
+    
+    /* Fix question text size */
+    #question-container h4 {
+        font-size: 1.15rem !important;
+        line-height: 1.4 !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    /* Fix button layout at bottom */
+    #assessment-section .flex.justify-between {
+        margin-top: 1.25rem !important;
+    }
+    
+    /* Adjust button sizes */
+    #prev-question, #next-question {
+        padding: 0.6rem 1.2rem !important;
+        font-size: 0.95rem !important;
+    }
+    
+    /* Ensure main content doesn't get hidden behind header */
+    main {
+        padding-top: 60px !important;
     }
 }
 
@@ -495,4 +1077,105 @@ button:active::after {
 
 .chat-messages::-webkit-scrollbar-thumb:hover {
     background: #9CA3AF;
+}
+
+/* Prevent overflow and ensure wrapping for all screen sizes */
+.text-wrap {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+/* Ensure all containers have a max-width to prevent overflow */
+.container {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Remove horizontal scrolling */
+html, body {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+/* Ensure table responsiveness */
+table {
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+}
+
+/* Improve card layouts */
+.grid .bg-white {
+    height: auto !important;
+}
+
+/* Fix testimonial cards */
+#social-proof-section .grid > div {
+    margin-bottom: 2rem;
+}
+
+/* Make images responsive */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Fix button widths for small screens */
+.w-full {
+    width: 100% !important;
+}
+
+/* Ensure proper touch targets */
+input[type="radio"], 
+input[type="checkbox"] {
+    min-width: 24px;
+    min-height: 24px;
+}
+
+/* Force proper display mode for desktop vs mobile */
+@media screen and (min-width: 768px) {
+    .md\:flex {
+        display: flex !important;
+    }
+    
+    .md\:grid-cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+    
+    .md\:hidden {
+        display: none !important;
+    }
+    
+    /* Reset any mobile-specific styles */
+    #hero-section, #social-proof-section {
+        max-width: none !important;
+    }
+    
+    /* Ensure desktop navigation is visible */
+    header nav {
+        display: flex !important;
+    }
+    
+    /* Fix spacing in desktop mode */
+    .space-y-6.md\:space-y-0 > * + * {
+        margin-top: 0 !important;
+    }
+    
+    .md\:flex-row {
+        flex-direction: row !important;
+    }
+}
+
+/* Responsive mode reset for proper re-rendering */
+@media (orientation: landscape) {
+    /* Force reflow on orientation change */
+    html {
+        height: 100%;
+    }
+    
+    body {
+        min-height: 100%;
+    }
 } 

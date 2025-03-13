@@ -187,10 +187,14 @@ function showQuestion(index) {
     
     console.log(`Showing question ${index + 1}/${ASSESSMENT_QUESTIONS.length} (ID: ${question.id})`);
     
+    // Check if viewing on small/medium sized device
+    const isMobileDevice = window.innerWidth <= 428;
+    const mobileClass = isMobileDevice ? 'text-wrap' : '';
+    
     // Create the question HTML
     let questionHTML = `
         <div class="mb-6 fade-in">
-            <h4 class="text-xl font-semibold text-gray-800 mb-4">${question.text}</h4>
+            <h4 class="text-xl font-semibold text-gray-800 mb-4 ${mobileClass}">${question.text}</h4>
             <div class="space-y-3" id="options-container">
     `;
     
@@ -202,9 +206,9 @@ function showQuestion(index) {
         questionHTML += `
             <div class="option-container ${selectedClass} p-3 border rounded cursor-pointer transition duration-200"
                  data-option-id="${option.id}" data-question-id="${question.id}">
-                <label class="flex items-center cursor-pointer w-full">
-                    <input type="radio" name="question-${question.id}" value="${option.id}" class="mr-2" ${isSelected ? 'checked' : ''}>
-                    <span>${option.text}</span>
+                <label class="flex items-start cursor-pointer w-full">
+                    <input type="radio" name="question-${question.id}" value="${option.id}" class="mr-2 mt-1" ${isSelected ? 'checked' : ''}>
+                    <span class="${mobileClass}">${option.text}</span>
                 </label>
             </div>
         `;
@@ -226,6 +230,33 @@ function showQuestion(index) {
     
     // Update navigation buttons
     updateNavigationButtons();
+    
+    // Force layout refresh on mobile
+    if (isMobileDevice) {
+        setTimeout(() => {
+            // Apply additional mobile-specific adjustments
+            const optionContainers = document.querySelectorAll('.option-container');
+            optionContainers.forEach(container => {
+                container.style.width = '100%';
+                container.style.boxSizing = 'border-box';
+                
+                // Ensure the radio button and text are properly aligned
+                const label = container.querySelector('label');
+                if (label) {
+                    label.style.alignItems = 'flex-start';
+                }
+                
+                // Make the text properly wrap
+                const span = container.querySelector('span');
+                if (span) {
+                    span.style.wordBreak = 'break-word';
+                    span.style.overflowWrap = 'break-word';
+                    span.style.hyphens = 'auto';
+                    span.style.display = 'inline-block';
+                }
+            });
+        }, 50);
+    }
 }
 
 // Attach event listeners to option containers
@@ -482,6 +513,11 @@ function completeAssessment() {
         
         // Save bias profile for other features
         localStorage.setItem('fda_user_biases', JSON.stringify(assessmentResults));
+        
+        // Update results links visibility in navigation
+        if (typeof updateResultsLinksVisibility === 'function') {
+            updateResultsLinksVisibility(true);
+        }
         
         // Reset assessment state
         currentQuestionIndex = 0;
@@ -948,18 +984,35 @@ function showDecisionTool() {
 
 // Show the progress tracker in the header
 function showProgressTracker() {
+    // Completely disabled to prevent overlap with navigation
+    // The progress is already shown in the assessment section
+    return;
+    
+    /* Original code commented out
     if (!progressTracker || !progressTrackerText) return;
     
+    // Instead of removing hidden class, we'll use our CSS visibility transition
     progressTracker.classList.remove('hidden');
+    
+    // Make sure it's properly positioned
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    if (mobileMenuButton && window.innerWidth < 768) {
+        const buttonRect = mobileMenuButton.getBoundingClientRect();
+        progressTracker.style.right = (window.innerWidth - buttonRect.left + 16) + 'px';
+    }
+    
     updateProgressTracker(1, ASSESSMENT_QUESTIONS.length);
+    */
 }
 
 // Update the progress tracker in the header
 function updateProgressTracker(current, total) {
-    if (!progressTracker || !progressTrackerText) return;
+    // Completely disabled to prevent overlap with navigation
+    // The progress is already shown in the assessment section
+    return;
     
-    // Show progress tracker
-    progressTracker.classList.remove('hidden');
+    /* Original code commented out
+    if (!progressTracker || !progressTrackerText) return;
     
     // Update text
     progressTrackerText.textContent = `Assessment: ${current}/${total}`;
@@ -968,18 +1021,16 @@ function updateProgressTracker(current, total) {
     const progress = current / total;
     
     // Update color based on progress
+    progressTracker.classList.remove('bg-blue-500', 'bg-yellow-500', 'bg-green-500');
+    
     if (progress < 0.3) {
-        progressTracker.classList.remove('bg-yellow-500', 'bg-green-500');
         progressTracker.classList.add('bg-blue-500');
     } else if (progress < 0.7) {
-        progressTracker.classList.remove('bg-blue-500', 'bg-green-500');
         progressTracker.classList.add('bg-yellow-500');
     } else if (progress < 1) {
-        progressTracker.classList.remove('bg-blue-500', 'bg-yellow-500');
         progressTracker.classList.add('bg-green-500');
     } else {
         // Completed
-        progressTracker.classList.remove('bg-blue-500', 'bg-yellow-500');
         progressTracker.classList.add('bg-green-500');
         
         // Show completion message
@@ -988,6 +1039,7 @@ function updateProgressTracker(current, total) {
     
     // Log for debugging
     console.log(`Progress updated: ${current}/${total}`);
+    */
 }
 
 // Function to handle the submission button click

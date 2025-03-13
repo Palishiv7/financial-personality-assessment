@@ -24,6 +24,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Scroll to top on page load/refresh
     window.scrollTo(0, 0);
     
+    // Initialize mobile menu
+    initMobileMenu();
+    
+    // Make sure navigation is visible on desktop
+    handleResponsiveNavigation();
+    
     // Initialize application router
     initRouter();
     
@@ -73,6 +79,138 @@ document.addEventListener('DOMContentLoaded', () => {
     animateCounters();
 });
 
+/**
+ * Initialize mobile menu functionality
+ */
+function initMobileMenu() {
+    // Get DOM elements
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const desktopNav = document.querySelector('nav');
+    const desktopResultsLink = document.getElementById('my-results-link');
+    const mobileResultsLink = document.getElementById('mobile-results-link');
+    
+    // Function to close mobile menu
+    window.closeMobileMenu = function() {
+        if (mobileMenu) {
+            mobileMenu.classList.add('hidden');
+            mobileMenu.classList.remove('open');
+            console.log('Mobile menu closed');
+        }
+    };
+    
+    // Toggle mobile menu when button is clicked
+    if (mobileMenuButton && mobileMenu) {
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            mobileMenu.classList.toggle('open');
+        });
+    }
+    
+    // Close mobile menu when a link is clicked
+    if (mobileMenu) {
+        const mobileMenuLinks = mobileMenu.querySelectorAll('a');
+        mobileMenuLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                // Close immediately without delay
+                window.closeMobileMenu();
+            });
+        });
+    }
+    
+    // Also add click handler to the site title to ensure menu closes
+    const siteTitle = document.querySelector('h1 a');
+    if (siteTitle) {
+        siteTitle.addEventListener('click', () => {
+            window.closeMobileMenu();
+        });
+    }
+    
+    // Add a global event listener for hash changes to close the mobile menu
+    window.addEventListener('hashchange', () => {
+        window.closeMobileMenu();
+    });
+    
+    // Add a document click listener to close the menu when clicking anywhere else
+    document.addEventListener('click', (e) => {
+        // If menu is open and the click is outside the menu and not on the menu button
+        if (mobileMenu && 
+            !mobileMenu.classList.contains('hidden') && 
+            !mobileMenu.contains(e.target) && 
+            mobileMenuButton && 
+            !mobileMenuButton.contains(e.target)) {
+            window.closeMobileMenu();
+        }
+    });
+    
+    // Sync "My Results" visibility
+    if (desktopResultsLink && mobileResultsLink) {
+        // Check if user has completed the assessment
+        const hasResults = getFromLocalStorage(STORAGE_KEYS.COMPLETED_ASSESSMENT);
+        if (hasResults) {
+            desktopResultsLink.classList.remove('hidden');
+            mobileResultsLink.classList.remove('hidden');
+        }
+    }
+    
+    // Handle window resize to ensure proper menu state
+    if (mobileMenu) {
+        window.addEventListener('resize', () => {
+            // Handle mobile menu visibility on resize
+            if (window.innerWidth >= 768) {
+                // On desktop: hide mobile menu
+                window.closeMobileMenu();
+                
+                // Ensure desktop nav is visible (in case user switched from mobile)
+                if (desktopNav) {
+                    desktopNav.classList.remove('hidden');
+                    desktopNav.classList.add('md:block');
+                }
+            } else {
+                // On mobile: ensure desktop nav has correct classes
+                if (desktopNav) {
+                    desktopNav.classList.add('hidden');
+                    desktopNav.classList.add('md:block');
+                }
+            }
+        });
+    }
+    
+    // Initial check on page load
+    if (window.innerWidth >= 768) {
+        // On desktop: ensure desktop nav is visible
+        if (desktopNav) {
+            desktopNav.classList.remove('hidden');
+            desktopNav.classList.add('md:block');
+        }
+    }
+}
+
+/**
+ * Update the visibility of results links in both desktop and mobile menus
+ * @param {boolean} show - Whether to show or hide the results links
+ */
+function updateResultsLinksVisibility(show = true) {
+    const desktopResultsLink = document.getElementById('my-results-link');
+    const mobileResultsLink = document.getElementById('mobile-results-link');
+    
+    if (desktopResultsLink) {
+        if (show) {
+            desktopResultsLink.classList.remove('hidden');
+        } else {
+            desktopResultsLink.classList.add('hidden');
+        }
+    }
+    
+    if (mobileResultsLink) {
+        if (show) {
+            mobileResultsLink.classList.remove('hidden');
+        } else {
+            mobileResultsLink.classList.add('hidden');
+        }
+    }
+}
+
 // Application Router
 function initRouter() {
     console.log('Initializing router');
@@ -105,9 +243,16 @@ function initRouter() {
         let hash = window.location.hash.replace('#', '');
         console.log('Route change detected to:', hash);
         
+        // Close mobile menu on route change
+        if (typeof window.closeMobileMenu === 'function') {
+            window.closeMobileMenu();
+        }
+        
         // If hash is empty, default to home
         if (!hash) hash = 'home';
         
+        // Always handle the route change, even if it's the same route
+        // This ensures the menu closes properly on same-section clicks
         try {
             // If we have a handler for this route, call it
             if (routes[hash]) {
@@ -578,6 +723,9 @@ function checkUrlForSharedResults() {
             saveToLocalStorage(STORAGE_KEYS.USER_BIASES, biasResults);
             saveToLocalStorage(STORAGE_KEYS.COMPLETED_ASSESSMENT, true);
             
+            // Update results links visibility
+            updateResultsLinksVisibility(true);
+            
             // Show shared results banner
             showSharedResultsBanner();
             
@@ -814,7 +962,7 @@ function displaySavedResults() {
                 window.location.hash = 'results';
                 updateActiveNavigation('results');
                 
-                // Display results
+                // Display the results
                 const parsedResults = JSON.parse(savedResults);
                 if (typeof displayResults === 'function') {
                     displayResults(parsedResults);
@@ -2675,4 +2823,115 @@ function addImplementationTipsBox(doc, yPos) {
     
     return yPos + tipsHeight + 5;
 }
+
+// Handle responsive navigation
+function handleResponsiveNavigation() {
+    console.log('Handling responsive navigation');
+    const desktopNav = document.querySelector('nav');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const heroSection = document.getElementById('hero-section');
+    const socialProofSection = document.getElementById('social-proof-section');
+    const header = document.querySelector('header');
+    const progressTracker = document.getElementById('progress-tracker');
+    
+    // Ensure header has consistent height
+    if (header) {
+        // Make sure header has the necessary styles
+        if (!header.style.height) {
+            header.style.height = '60px';
+            header.style.minHeight = '60px';
+            header.style.maxHeight = '60px';
+        }
+        
+        // Ensure progress tracker is properly positioned
+        if (progressTracker) {
+            if (window.innerWidth < 768) {
+                progressTracker.style.right = '60px';
+            } else {
+                progressTracker.style.right = '180px';
+            }
+        }
+    }
+    
+    // Current view size
+    const isMobile = window.innerWidth < 768;
+    console.log('Is mobile view:', isMobile, 'Width:', window.innerWidth);
+    
+    if (!isMobile) {
+        // On desktop
+        if (desktopNav) {
+            desktopNav.classList.remove('hidden');
+            // Force display style directly for browsers that might not respect the class change
+            desktopNav.style.display = 'flex';
+            console.log('Desktop nav visible');
+        }
+        
+        // Always hide mobile menu on desktop
+        if (mobileMenu) {
+            mobileMenu.classList.add('hidden');
+            mobileMenu.classList.remove('open');
+            // Force display style directly
+            mobileMenu.style.display = 'none';
+        }
+        
+        // Reset desktop-specific styles
+        if (heroSection) {
+            heroSection.style.width = '';
+            heroSection.style.maxWidth = '';
+            heroSection.style.padding = '';
+        }
+        
+        if (socialProofSection) {
+            const counterSection = socialProofSection.querySelector('.flex-col');
+            if (counterSection) {
+                counterSection.style.flexDirection = '';
+            }
+        }
+    } else {
+        // On mobile
+        if (desktopNav) {
+            // Hide desktop nav on mobile but keep the md:flex class
+            desktopNav.classList.add('hidden');
+            // Force display style directly
+            desktopNav.style.display = 'none';
+        }
+        
+        // Make sure mobile menu is properly hidden unless explicitly opened
+        if (mobileMenu && !mobileMenu.classList.contains('open')) {
+            mobileMenu.classList.add('hidden');
+            // Force display style directly
+            mobileMenu.style.display = 'none';
+        }
+        
+        // Apply mobile-specific styles
+        if (heroSection) {
+            // Use !important to override any conflicting styles
+            heroSection.style.cssText = 'width: 100% !important; max-width: calc(100% - 16px) !important; margin-left: auto !important; margin-right: auto !important;';
+        }
+        
+        if (socialProofSection) {
+            const counterSection = socialProofSection.querySelector('.flex-col');
+            if (counterSection) {
+                counterSection.style.cssText = 'flex-direction: column !important; width: 100% !important; gap: 1.5rem !important;';
+            }
+        }
+    }
+    
+    // Force reflow of the page to ensure styles are applied
+    document.body.classList.toggle('force-reflow');
+    setTimeout(() => document.body.classList.toggle('force-reflow'), 10);
+}
+
+// Function to call on window resize
+window.addEventListener('resize', handleResponsiveNavigation);
+
+// Also call it on page load to ensure correct initial state
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(handleResponsiveNavigation, 100);
+});
+
+// Call on orientation change
+window.addEventListener('orientationchange', function() {
+    setTimeout(handleResponsiveNavigation, 200);
+});
     

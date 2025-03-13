@@ -856,47 +856,121 @@ function updateActiveNavigation(activeRoute) {
 function handleContactSubmit(e) {
     e.preventDefault();
     
+    // Get the form and submission button
     const form = e.target;
-    const formData = new FormData(form);
+    const submitButton = document.getElementById('contact-submit-btn');
     
-    console.log('Contact form submitted with data:');
-    for (const [key, value] of formData.entries()) {
-        console.log(`- ${key}: ${value}`);
-    }
-    
-    // In a real app, you would send data to a server
-    // For this demo, we'll just show a success message
-    
-    // Show success message
-    const successMessage = document.createElement('div');
-    successMessage.className = 'mt-4 p-3 bg-green-100 text-green-700 rounded-md slide-in-up';
-    successMessage.innerHTML = `
-        <p class="flex items-center">
-            <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-            Your message has been sent! We'll get back to you soon.
-        </p>
-    `;
-    
-    // Find the submit button and insert the message before it
-    const submitButton = form.querySelector('button[type="submit"]');
+    // Disable the submit button and show loading state
     if (submitButton) {
-        submitButton.parentNode.insertBefore(successMessage, submitButton);
-    } else {
-        form.appendChild(successMessage);
+        submitButton.disabled = true;
+        submitButton.innerHTML = 'Sending...';
+        submitButton.classList.add('opacity-70');
     }
     
-    // Reset form
-    form.reset();
+    // Get form data
+    const name = document.getElementById('user_name').value.trim();
+    const email = document.getElementById('user_email').value.trim();
+    const message = document.getElementById('message').value.trim();
     
-    // Hide success message after 5 seconds
-    setTimeout(() => {
-        successMessage.remove();
-    }, 5000);
+    // Log the values to ensure they're being captured
+    console.log('Form data captured:', {
+        name: name,
+        email: email,
+        message: message ? 'Message present' : 'No message'
+    });
     
-    // Track form submission
-    trackEngagement('contact_form_submit');
+    // Prepare template parameters for EmailJS
+    const templateParams = {
+        to_email: 'paligamingx@gmail.com',
+        subject: 'Financial Personality Types - Contact Form',
+        user_name: name,
+        user_email: email,
+        message: message
+    };
+    
+    console.log('Sending contact form to EmailJS');
+    
+    // Send the email using EmailJS
+    emailjs.send(
+        // EmailJS service ID
+        'service_ej7d6fr', 
+        
+        // EmailJS template ID
+        'template_wbx7t9q', 
+        
+        templateParams
+    )
+        .then(function(response) {
+            console.log('Email sent successfully!', response.status, response.text);
+            
+            // Show success message
+            const successMessage = document.createElement('div');
+            successMessage.className = 'mt-4 p-3 bg-green-100 text-green-700 rounded-md slide-in-up';
+            successMessage.innerHTML = `
+                <p class="flex items-center">
+                    <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Your message has been sent! We'll get back to you soon.
+                </p>
+            `;
+            
+            // Insert success message
+            if (submitButton && submitButton.parentNode) {
+                submitButton.parentNode.insertBefore(successMessage, submitButton);
+            } else {
+                form.appendChild(successMessage);
+            }
+            
+            // Reset form
+            form.reset();
+            
+            // Hide success message after 5 seconds
+            setTimeout(() => {
+                successMessage.remove();
+            }, 5000);
+            
+            // Track form submission
+            trackEngagement('contact_form_submit_success');
+        })
+        .catch(function(error) {
+            console.error('Error sending email:', error);
+            
+            // Show error message
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'mt-4 p-3 bg-red-100 text-red-700 rounded-md slide-in-up';
+            errorMessage.innerHTML = `
+                <p class="flex items-center">
+                    <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    There was an error sending your message. Please try again later.
+                </p>
+            `;
+            
+            // Insert error message
+            if (submitButton && submitButton.parentNode) {
+                submitButton.parentNode.insertBefore(errorMessage, submitButton);
+            } else {
+                form.appendChild(errorMessage);
+            }
+            
+            // Hide error message after 5 seconds
+            setTimeout(() => {
+                errorMessage.remove();
+            }, 5000);
+            
+            // Track form submission error
+            trackEngagement('contact_form_submit_error');
+        })
+        .finally(function() {
+            // Re-enable the submit button
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Send Message';
+                submitButton.classList.remove('opacity-70');
+            }
+        });
 }
 
 // Handle share button click

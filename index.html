@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>Financial Personality Assessment | Discover Your Financial Type</title>
     
     <!-- Enhanced SEO Meta Tags -->
@@ -138,7 +138,7 @@
     
     <header class="fixed top-0 w-full bg-blue-600 text-white shadow-lg z-50">
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold">
+            <h1 class="text-2xl font-bold text-wrap">
                 <a href="#home" class="hover:text-blue-200">Financial Personality Types</a>
             </h1>
             
@@ -151,7 +151,7 @@
             </div>
             
             <!-- Mobile menu button -->
-            <button id="mobile-menu-button" class="md:hidden flex items-center px-3 py-2 border rounded text-blue-200 border-blue-400 hover:text-white hover:border-white">
+            <button id="mobile-menu-button" class="md:hidden flex items-center justify-center px-3 py-2 border rounded text-blue-200 border-blue-400 hover:text-white hover:border-white" style="min-width:44px; min-height:44px;">
                 <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
                 </svg>
@@ -170,7 +170,7 @@
         </div>
         
         <!-- Mobile Navigation Menu (Hidden by default) -->
-        <div id="mobile-menu" class="hidden md:hidden fixed w-full">
+        <div id="mobile-menu" class="hidden md:hidden fixed w-full shadow-lg">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-blue-600 border-t border-blue-500">
                 <a href="#home" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-700">Home</a>
                 <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-700">About</a>
@@ -190,9 +190,9 @@
                     Take our assessment to discover your financial personality type and learn how your psychological tendencies influence your financial decisions.
                 </p>
                 <!-- Enhanced CTA button for new users -->
-                <button id="hero-start-assessment" onclick="window.location.hash='assessment'" class="bg-white text-blue-700 hover:bg-blue-800 hover:text-white font-bold py-4 px-8 rounded-lg text-xl shadow-lg transition duration-300 transform hover:scale-105 border-2 border-white">
+                <button id="hero-start-assessment" onclick="window.location.hash='assessment'" class="bg-white text-blue-700 hover:bg-blue-800 hover:text-white font-bold py-3 px-6 rounded-lg text-lg shadow-lg transition duration-300 transform hover:scale-105 border-2 border-white" style="min-height:44px; display:flex; margin:0 auto; max-width:250px; justify-content:center; align-items:center;">
                     <span class="flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                         </svg>
                         Start Assessment

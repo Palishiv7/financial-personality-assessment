@@ -2829,6 +2829,7 @@ function handleResponsiveNavigation() {
     console.log('Handling responsive navigation');
     const desktopNav = document.querySelector('nav');
     const mobileMenu = document.getElementById('mobile-menu');
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
     const heroSection = document.getElementById('hero-section');
     const socialProofSection = document.getElementById('social-proof-section');
     const header = document.querySelector('header');
@@ -2837,11 +2838,11 @@ function handleResponsiveNavigation() {
     // Ensure header has consistent height
     if (header) {
         // Make sure header has the necessary styles
-        if (!header.style.height) {
-            header.style.height = '60px';
-            header.style.minHeight = '60px';
-            header.style.maxHeight = '60px';
-        }
+        header.style.height = '60px';
+        header.style.minHeight = '60px';
+        header.style.maxHeight = '60px';
+        header.style.display = 'flex';
+        header.style.alignItems = 'center';
         
         // Ensure progress tracker is properly positioned
         if (progressTracker) {
@@ -2856,6 +2857,28 @@ function handleResponsiveNavigation() {
     // Current view size
     const isMobile = window.innerWidth < 768;
     console.log('Is mobile view:', isMobile, 'Width:', window.innerWidth);
+    
+    // Always ensure mobile menu button is visible on small screens
+    if (mobileMenuButton) {
+        if (isMobile) {
+            // Ensure button is visible on mobile
+            mobileMenuButton.style.display = 'flex';
+            mobileMenuButton.classList.remove('hidden');
+            
+            // For very small screens, ensure the button is positioned correctly
+            if (window.innerWidth <= 375) {
+                mobileMenuButton.style.position = 'absolute';
+                mobileMenuButton.style.right = '8px';
+                mobileMenuButton.style.top = '50%';
+                mobileMenuButton.style.transform = 'translateY(-50%)';
+                mobileMenuButton.style.zIndex = '9999';
+            }
+        } else {
+            // Hide on desktop
+            mobileMenuButton.style.display = 'none';
+            mobileMenuButton.classList.add('hidden');
+        }
+    }
     
     if (!isMobile) {
         // On desktop
@@ -2907,6 +2930,19 @@ function handleResponsiveNavigation() {
         if (heroSection) {
             // Use !important to override any conflicting styles
             heroSection.style.cssText = 'width: 100% !important; max-width: calc(100% - 16px) !important; margin-left: auto !important; margin-right: auto !important;';
+            
+            // Make sure the Start Assessment button is visible and properly sized
+            const heroStartButton = document.getElementById('hero-start-assessment');
+            if (heroStartButton) {
+                if (window.innerWidth <= 375) {
+                    heroStartButton.style.display = 'flex';
+                    heroStartButton.style.justifyContent = 'center';
+                    heroStartButton.style.alignItems = 'center';
+                    heroStartButton.style.minHeight = '44px';
+                    heroStartButton.style.margin = '0 auto';
+                    heroStartButton.style.maxWidth = '200px';
+                }
+            }
         }
         
         if (socialProofSection) {

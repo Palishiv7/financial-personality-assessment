@@ -998,23 +998,21 @@
             }
         }
         
-        // Ensure content doesn't overflow on mobile
+        // Ensure content doesn't overflow on mobile - optimized to reduce reflow
         function fixMobileOverflow() {
+            // Only run this function once after load, no need to constantly check
+            if (window._overflowFixed) return;
+            
             const wrapper = document.querySelector('main');
             if (wrapper) {
-                wrapper.style.width = '100%';
-                wrapper.style.maxWidth = '100%';
-                wrapper.style.overflowX = 'hidden';
+                wrapper.style.cssText = 'width:100%;max-width:100%;overflow-x:hidden;';
             }
             
-            // Fix hero section sizing
+            // Fix hero section sizing - batch style changes to reduce reflows
             const hero = document.getElementById('hero-section');
             if (hero && window.innerWidth < 768) {
-                hero.style.width = '100%';
-                hero.style.maxWidth = '100%';
-                hero.style.borderRadius = '0.5rem';
-                hero.style.marginLeft = 'auto';
-                hero.style.marginRight = 'auto';
+                // Apply all styles at once to prevent multiple reflows
+                hero.style.cssText = 'width:100%;max-width:100%;border-radius:0.5rem;margin-left:auto;margin-right:auto;';
             }
             
             // Fix social proof section on mobile
@@ -1022,11 +1020,13 @@
             if (socialProof && window.innerWidth < 768) {
                 const counterSection = socialProof.querySelector('.flex-col');
                 if (counterSection) {
-                    counterSection.style.flexDirection = 'column';
-                    counterSection.style.width = '100%';
-                    counterSection.style.gap = '1.5rem';
+                    // Apply all styles at once
+                    counterSection.style.cssText = 'flex-direction:column;width:100%;gap:1.5rem;';
                 }
             }
+            
+            // Mark as fixed so we don't keep recalculating
+            window._overflowFixed = true;
         }
         
         // Initialize and add event listeners
@@ -1049,10 +1049,10 @@
                 resizeTimer = setTimeout(function() {
                     fixMobileOverflow();
                     
-                    // Force reflow after resize to ensure proper layout
-                    document.body.style.display = 'none';
-                    document.body.offsetHeight; // Force reflow
-                    document.body.style.display = '';
+                    // Don't force reflow - this was causing blinking issues
+                    // document.body.style.display = 'none';
+                    // document.body.offsetHeight; // Force reflow
+                    // document.body.style.display = '';
                 }, 250);
             });
         });

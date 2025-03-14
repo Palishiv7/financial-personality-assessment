@@ -1,15 +1,16 @@
 /* Custom styles beyond Tailwind */
 
-/* For all devices - simple scrolling */
+/* For all devices - disable smooth scrolling to prevent issues */
 html {
-  scroll-behavior: auto; /* Disable smooth scrolling to prevent issues */
+  scroll-behavior: auto !important; /* Disable smooth scrolling to prevent issues */
 }
 
 /* Minimal mobile scrolling optimization - avoid over-optimization */
 html, body {
-  -webkit-overflow-scrolling: touch; /* Keep this for better inertia scrolling */
-  overscroll-behavior: none; /* Prevent bounce effects */
-  overscroll-behavior-y: contain; /* Prevent overscroll which can trigger refresh */
+  -webkit-overflow-scrolling: auto !important; /* Prevent inertia scrolling which can cause visual issues */
+  overscroll-behavior: none !important; /* Prevent bounce effects */
+  overscroll-behavior-y: contain !important; /* Prevent overscroll which can trigger refresh */
+  will-change: auto !important; /* Don't use GPU acceleration which can cause flickering */
 }
 
 /* Base desktop container styles */
@@ -163,6 +164,45 @@ header .container {
 
 /* Simplified mobile optimizations - fix white screen issue */
 @media (max-width: 767.98px) {
+  /* Disable all animations on mobile devices */
+  * {
+    animation-duration: 0.001s !important;
+    transition-duration: 0.001s !important;
+    animation-iteration-count: 1 !important;
+  }
+  
+  /* Optimize fixed elements to reduce repaints */
+  .fixed, 
+  .absolute,
+  .sticky {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+  
+  /* Completely disable animation classes on mobile */
+  .fade-in,
+  .slide-in-right,
+  .slide-in-left,
+  .slide-in-up,
+  .pulse,
+  .pulse-strong {
+    animation: none !important;
+  }
+  
+  /* Disable transitions on hover states */
+  *:hover {
+    transform: none !important;
+    transition: none !important;
+  }
+  
+  /* Prevent transitioning elements from causing reflows */
+  .transform,
+  [class*="hover:scale-"],
+  [class*="hover:translate-"] {
+    transform: translateZ(0);
+    will-change: auto !important;
+  }
+  
   /* Remove hardware acceleration that was causing issues */
   
   /* Fix for the header */

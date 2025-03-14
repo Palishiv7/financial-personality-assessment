@@ -563,10 +563,10 @@ function showResultsSection() {
             // Get the header height to use as offset
             const headerHeight = document.querySelector('header')?.offsetHeight || 80;
             
-            // Scroll to Results section with proper offset for fixed header
+            // Scroll to Results section with proper offset for fixed header but without animation
             window.scrollTo({
                 top: resultsSection.offsetTop - headerHeight - 20, // Extra 20px padding
-                behavior: 'smooth'
+                behavior: 'auto' // Use 'auto' instead of 'smooth' to prevent flicker on mobile
             });
             
             // Track this view
@@ -618,7 +618,7 @@ function showAboutSection() {
         // Scroll to About section with proper offset for fixed header
         window.scrollTo({
             top: aboutSection.offsetTop - headerHeight - 20, // Extra 20px padding
-            behavior: 'smooth'
+            behavior: 'auto' // Use 'auto' instead of 'smooth' to prevent flicker on mobile
         });
         
         // Update active navigation
@@ -654,7 +654,7 @@ function showContactSection() {
         // Scroll to Contact section with proper offset for fixed header
         window.scrollTo({
             top: contactSection.offsetTop - headerHeight - 20, // Extra 20px padding
-            behavior: 'smooth'
+            behavior: 'auto' // Use 'auto' instead of 'smooth' to prevent flicker on mobile
         });
         
         // Update active navigation

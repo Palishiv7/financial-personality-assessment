@@ -134,7 +134,7 @@ function startAssessment() {
         // Scroll to the question with proper offset for fixed header
         window.scrollTo({
             top: questionContainer.offsetTop - headerHeight - 20, // Extra 20px padding
-            behavior: 'smooth'
+            behavior: 'auto' // No smooth scrolling on mobile to prevent flickering
         });
         
         // Show progress tracker
@@ -612,7 +612,7 @@ function displayResults(results, durationInSeconds = null) {
     const headerHeight = document.querySelector('header')?.offsetHeight || 80;
     window.scrollTo({
         top: resultsSection.offsetTop - headerHeight - 20, // Extra 20px padding
-        behavior: 'smooth'
+        behavior: 'auto' // No smooth scrolling on mobile to prevent flickering
     });
     
     // Create the bias profile visualization

@@ -126,7 +126,14 @@
     
     <!-- PDF Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- Complete jsPDF bundle with all plugins -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://unpkg.com/jspdf-addimage-fix/dist/jspdf.addimage.fix.js"></script>
+    <!-- Advanced PDF styling capabilities -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/3.0.10/umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/svg2pdf.js@1.5.0/dist/svg2pdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>
 </head>
 <body class="bg-gray-50 font-sans">
     <!-- Share Button (Fixed position for easy sharing) -->
@@ -375,6 +382,45 @@
                     </svg>
                     Export Results
                 </button>
+            </div>
+
+            <!-- Feedback Form -->
+            <div id="feedback-container" class="feedback-container mt-8">
+                <div class="feedback-header">
+                    <h3>Your Feedback Matters</h3>
+                    <p>We value your opinion! Please share your thoughts to help us improve the assessment experience.</p>
+                </div>
+                
+                <div class="rating-section">
+                    <p class="rating-question">How would you rate your experience with this assessment?</p>
+                    <div class="rating-container">
+                        <div class="stars">
+                            <input type="radio" id="star5" name="rating" value="5" />
+                            <label for="star5" title="Excellent">★</label>
+                            <input type="radio" id="star4" name="rating" value="4" />
+                            <label for="star4" title="Very Good">★</label>
+                            <input type="radio" id="star3" name="rating" value="3" />
+                            <label for="star3" title="Good">★</label>
+                            <input type="radio" id="star2" name="rating" value="2" />
+                            <label for="star2" title="Fair">★</label>
+                            <input type="radio" id="star1" name="rating" value="1" />
+                            <label for="star1" title="Poor">★</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="comment-container">
+                    <p class="comment-label">Would you like to share additional thoughts?</p>
+                    <textarea id="feedback-comment" placeholder="Any comments or suggestions for improvement?"></textarea>
+                </div>
+                
+                <button id="submit-feedback">Submit Feedback</button>
+            </div>
+
+            <div id="feedback-thank-you" class="feedback-thank-you hidden">
+                <div class="thank-you-icon">✓</div>
+                <h3>Thank You For Your Feedback!</h3>
+                <p>Your insights help us improve the assessment tool for everyone.</p>
             </div>
         </section>
 

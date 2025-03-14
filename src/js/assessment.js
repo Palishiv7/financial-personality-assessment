@@ -726,6 +726,11 @@ function displayResults(results, durationInSeconds = null) {
     // Add a retake button if needed
     addRetakeButton();
     
+    // Initialize the feedback form if the function exists
+    if (typeof initFeedbackForm === 'function') {
+        initFeedbackForm();
+    }
+    
     // Track this view
     if (typeof trackEngagement === 'function') {
         trackEngagement('view_results');

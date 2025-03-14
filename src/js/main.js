@@ -8,7 +8,9 @@ const STORAGE_KEYS = {
     ASSESSMENT_RESULTS: 'fda_assessment_results',
     USER_BIASES: 'fda_user_biases',
     COMPLETED_ASSESSMENT: 'fda_completed_assessment',
-    LAST_VISIT: 'fda_last_visit'
+    LAST_VISIT: 'fda_last_visit',
+    PERSONALITY_TYPE: 'fda_personality_type',
+    FEEDBACK_SUBMITTED: 'fda_feedback_submitted'
 };
 
 // URL Parameter Keys
@@ -56,6 +58,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (exportButton) {
         exportButton.addEventListener('click', exportResultsToPDF);
     }
+    
+    // Initialize feedback form
+    initFeedbackForm();
     
     // Check for URL parameters with shared results
     checkUrlForSharedResults();
@@ -548,6 +553,11 @@ function showResultsSection() {
                     console.error('Error displaying results:', error);
                 }
             }
+            
+            // Initialize feedback form
+            if (typeof initFeedbackForm === 'function') {
+                initFeedbackForm();
+            }
         }
     } else {
         console.log('No saved results, redirecting to assessment section');
@@ -970,6 +980,11 @@ function displaySavedResults() {
                 } else {
                     console.error('displayResults function not available');
                 }
+                
+                // Initialize feedback form
+                if (typeof initFeedbackForm === 'function') {
+                    initFeedbackForm();
+                }
             } else {
                 console.error('Results section not found');
             }
@@ -1345,6 +1360,9 @@ function createCoverPage(doc) {
     const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 20;
     
+    try {
+        // Try to create a gradient background if the function is available
+        if (typeof doc.setGradient === 'function') {
     // Create a gradient background for header area
     const headerGradient = doc.setGradient("linear", 
         0, 0, pageWidth, 0, 
@@ -1353,6 +1371,17 @@ function createCoverPage(doc) {
     
     // Draw header background with gradient
     doc.setFillColor(headerGradient);
+        } else {
+            // Fallback to a solid color if gradient is not available
+            doc.setFillColor(30, 64, 175); // Dark blue (hex 1E40AF)
+        }
+    } catch (error) {
+        console.log("Gradient not supported, using fallback color");
+        // Fallback to a solid color
+        doc.setFillColor(30, 64, 175); // Dark blue (hex 1E40AF)
+    }
+    
+    // Draw header background
     doc.rect(0, 0, pageWidth, 70, 'F');
     
     // Add decorative elements - wave pattern at bottom of header
@@ -1508,179 +1537,65 @@ function createCoverPage(doc) {
     return yPos + 50;
 }
 
+// Debug logging helper - only logs in development environments
+function debugLog(...args) {
+    const isDevelopment = window.location.hostname === 'localhost' || 
+                        window.location.hostname === '127.0.0.1';
+    if (isDevelopment) {
+        console.log(...args);
+    }
+}
+
 // Export results to PDF using jsPDF (alternative approach)
 function exportResultsToPDF() {
-    console.log('Exporting comprehensive assessment results to PDF');
+    debugLog('Exporting comprehensive assessment results to PDF');
     
     try {
-        // Check if jsPDF is available
-        if (typeof jspdf === 'undefined') {
-            console.error('jsPDF library not loaded');
-            showNotification('PDF export is not available. Please try again later.', 'error');
-            return;
+        // Get necessary data
+        const biasData = getFromLocalStorage(STORAGE_KEYS.USER_BIASES);
+        const personalityTypeData = getFromLocalStorage(STORAGE_KEYS.PERSONALITY_TYPE);
+        
+        if (!biasData || !personalityTypeData) {
+            console.error('Missing data for PDF export');
+            showNotification('Missing assessment data. Please complete the assessment first.', 'error');
+            return false;
         }
         
-        // Check for data sources
-        const personalityTypeData = localStorage.getItem('fda_personality_type');
-        const userBiasesData = localStorage.getItem('fda_user_biases');
+        // Show loading indicator
+        showLoadingSpinner('Generating your detailed report...');
         
-        // Get data from DOM if localStorage fails
-        let hasAttemptedDomDataRetrieval = false;
-        if (!personalityTypeData || !userBiasesData) {
-            hasAttemptedDomDataRetrieval = true;
-            console.log('Attempting to get data from DOM...');
-            
-            // Try to get personality type from DOM
-            const domPersonalityName = document.querySelector('.personality-result h3')?.textContent;
-            const domPersonalityDesc = document.querySelector('.personality-result p')?.textContent;
-            
-            if (domPersonalityName) {
-                console.log('Found personality type in DOM:', domPersonalityName);
-                
-                // Construct a basic personality type object
-                const domPersonalityType = {
-                    primaryType: {
-                        name: domPersonalityName,
-                        description: domPersonalityDesc || 'No description available',
-                        strengths: [
-                            "Strategic thinking",
-                            "Calculated risk-taking",
-                            "Adaptability",
-                            "Forward-looking"
-                        ],
-                        colorScheme: "#3b82f6"
-                    }
-                };
-                
-                // Use this data if we didn't get it from localStorage
-                if (!personalityTypeData) {
-                    personalityTypeData = JSON.stringify(domPersonalityType);
-                }
-            }
-            
-            // Try to get bias data from DOM
-            const biasTitles = Array.from(document.querySelectorAll('.bias-card h4')).map(el => el.textContent);
-            const biasDescs = Array.from(document.querySelectorAll('.bias-card p:not(.bias-score)')).map(el => el.textContent);
-            const biasScores = Array.from(document.querySelectorAll('.bias-score')).map(el => {
-                const text = el.textContent;
-                const score = parseFloat(text.match(/(\d+(\.\d+)?)/)?.[0] || '5');
-                return score;
-            });
-            
-            if (biasTitles.length > 0) {
-                console.log('Found bias data in DOM:', biasTitles);
-                
-                // Construct bias objects
-                const domBiases = biasTitles.map((name, i) => ({
-                    id: name.toLowerCase().replace(/\s+/g, '_'),
-                    name: name,
-                    description: biasDescs[i] || 'No description available',
-                    score: biasScores[i] || 5,
-                    effects: "This bias can affect your investment decisions by clouding judgment with emotional factors."
-                }));
-                
-                // Use this data if we didn't get it from localStorage
-                if (!userBiasesData) {
-                    userBiasesData = JSON.stringify(domBiases);
-                }
-            }
-        }
-        
-        // If still no data, create sample data
-        if (!personalityTypeData && !userBiasesData) {
-            console.log('Creating sample data for PDF demonstration');
-            
-            // Create sample personality type
-            const samplePersonality = {
-                primaryType: {
-                    name: "The Visionary",
-                    description: "You are growth-focused and opportunity-seeking, willing to take bold risks for potentially high returns. Your forward-thinking approach creates growth opportunities, but might expose you to higher volatility.",
-                    strengths: [
-                        "Identifying emerging opportunities",
-                        "Taking calculated risks",
-                        "Long-term thinking",
-                        "Adaptability to changing trends"
-                    ],
-                    colorScheme: "#3b82f6"
-                },
-                secondaryType: {
-                    name: "The Follower",
-                    description: "You are trend-sensitive and socially-influenced, often making decisions based on what others are doing or recent market movements. This keeps you in tune with market sentiment, but might lead to chasing trends too late.",
-                    colorScheme: "#10b981"
-                }
-            };
-            personalityTypeData = JSON.stringify(samplePersonality);
-            
-            // Create sample biases
-            const sampleBiases = [
-                {
-                    id: "herd_mentality",
-                    name: "Herd Mentality",
-                    description: "You tend to follow what the majority of investors are doing rather than conducting your own analysis and making independent decisions.",
-                    score: 9.0,
-                    effects: "This might lead you to buy at market peaks when everyone is optimistic, and sell during crashes when fear is widespread."
-                },
-                {
-                    id: "recency_bias",
-                    name: "Recency Bias",
-                    description: "You tend to place too much weight on recent experiences and information, potentially overlooking longer-term patterns.",
-                    score: 7.8,
-                    effects: "This may lead you to chase recent market trends, buying high and selling low based on short-term performance."
-                },
-                {
-                    id: "overconfidence",
-                    name: "Overconfidence Bias",
-                    description: "You may overestimate your knowledge and ability to predict financial outcomes.",
-                    score: 6.5,
-                    effects: "This could lead to excessive trading or insufficient diversification in your portfolio."
-                },
-                {
-                    id: "loss_aversion",
-                    name: "Loss Aversion",
-                    description: "You likely feel the pain of losses more strongly than the pleasure of equivalent gains.",
-                    score: 8.2,
-                    effects: "This might cause you to hold losing investments too long or avoid reasonable risks."
-                }
-            ];
-            userBiasesData = JSON.stringify(sampleBiases);
-        }
-        
-        if (!personalityTypeData && !userBiasesData) {
-            console.error('No assessment data found for PDF export');
-            showNotification('No assessment data found. Please complete the assessment first.', 'error');
-            return;
-        }
-        
-        // Create a new PDF document
-        const { jsPDF } = jspdf;
-        const doc = new jsPDF({
+        // Create jsPDF instance
+        let doc;
+        try {
+            // Create jsPDF with standard features
+            doc = new jspdf.jsPDF({
             orientation: 'portrait',
             unit: 'mm',
             format: 'a4'
         });
+        } catch (error) {
+            console.error('Error initializing jsPDF:', error);
+            showNotification('There was an error exporting to PDF. Please try again.', 'error');
+            hideLoadingSpinner();
+            return false;
+        }
         
-        // Set some initial values
+        // Get page dimensions
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
         const margin = 20;
-        const contentWidth = pageWidth - (margin * 2);
         
-        // Define a consistent color palette for professional look
+        // Define colors as hex strings for compatibility
         const colors = {
-            primary: [59, 130, 246],  // Blue
-            primaryLight: [219, 234, 254], // Light blue
-            secondary: [16, 185, 129], // Green
-            accent: [245, 158, 11],  // Orange/yellow
-            dark: [31, 41, 55],      // Dark gray/almost black
-            gray: [107, 114, 128],   // Medium gray
-            lightGray: [229, 231, 235], // Light gray
-            white: [255, 255, 255],  // White
-            red: [239, 68, 68],      // Red
-            yellow: [234, 179, 8],   // Yellow
-            green: [34, 197, 94]     // Green
+            primary: '#2563eb',    // Blue
+            secondary: '#10b981',  // Teal
+            accent: '#f97316',     // Orange
+            dark: '#1f2937',       // Dark gray
+            light: '#f3f4f6',      // Light gray
+            white: '#ffffff'
         };
         
-        // Define consistent fonts and sizes for professional hierarchy
+        // Define fonts
         const fonts = {
             heading1: { font: 'helvetica', style: 'bold', size: 22 },
             heading2: { font: 'helvetica', style: 'bold', size: 16 },
@@ -1695,388 +1610,372 @@ function exportResultsToPDF() {
         function setFont(fontDef, color = colors.dark) {
             doc.setFont(fontDef.font, fontDef.style);
             doc.setFontSize(fontDef.size);
-            doc.setTextColor(color[0], color[1], color[2]);
+            doc.setTextColor(color);
         }
         
-        // Create the cover page and get the new vertical position
-        let yPos = createCoverPage(doc);
+        // Create fancy header
+        function createFancyHeader(title) {
+            // Draw header background
+            doc.setFillColor(colors.primary);
+            doc.rect(0, 0, pageWidth, 25, 'F');
+            
+            // Add decorative element
+            doc.setFillColor(colors.accent);
+            doc.rect(0, 25, pageWidth, 3, 'F');
+            
+            // Add title
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(22);
+            doc.setTextColor(colors.white);
+            doc.text(title, pageWidth / 2, 16, { align: 'center' });
+            
+            return 35; // Return the Y position after the header
+        }
         
-        // Parse and add personality type information
-        if (personalityTypeData) {
-            try {
-                const personalityType = JSON.parse(personalityTypeData);
-                console.log('Parsed personality data:', personalityType);
-                
-                if (personalityType && personalityType.primaryType) {
-                    hasData = true;
-                    
-                    // Add personality section header with modern styling
-                    yPos = addSectionHeader('YOUR FINANCIAL PERSONALITY PROFILE', yPos);
-                    yPos += 5;
-                    
-                    // Primary type
-                    const primary = personalityType.primaryType;
-                    
-                    // Get color from personality type or use default
-                    let primaryColor = colors.primary;
-                    if (primary.colorScheme) {
-                        try {
-                            if (primary.colorScheme.startsWith('#')) {
-                                const hex = primary.colorScheme.substring(1);
-                                const r = parseInt(hex.substring(0, 2), 16);
-                                const g = parseInt(hex.substring(2, 4), 16);
-                                const b = parseInt(hex.substring(4, 6), 16);
-                                primaryColor = [r, g, b];
-                            }
-                        } catch (e) {
-                            console.log('Using default color for primary type');
-                        }
-                    }
-                    
-                    // Draw primary type card with styling
-                    yPos = drawPersonalityCard(
-                        primary.name || 'Primary Type',
-                        primary.description || 'No description available',
-                        primary.strengths || null,
-                        yPos,
-                        primaryColor
-                    );
-                    
-                    // Secondary type if available
-                    if (personalityType.secondaryType) {
-                        const secondary = personalityType.secondaryType;
-                        yPos += 5;
-                        
-                        // Get color from secondary type or use default
-                        let secondaryColor = colors.secondary;
-                        if (secondary.colorScheme) {
-                            try {
-                                if (secondary.colorScheme.startsWith('#')) {
-                                    const hex = secondary.colorScheme.substring(1);
-                                    const r = parseInt(hex.substring(0, 2), 16);
-                                    const g = parseInt(hex.substring(2, 4), 16);
-                                    const b = parseInt(hex.substring(4, 6), 16);
-                                    secondaryColor = [r, g, b];
-                                }
-                            } catch (e) {
-                                console.log('Using default color for secondary type');
-                            }
-                        }
-                        
-                        // Draw secondary type card with styling
-                        yPos = drawPersonalityCard(
-                            secondary.name || 'Secondary Type',
-                            secondary.description || 'No description available',
-                            secondary.strengths || null,
-                            yPos,
-                            secondaryColor,
-                            true // isSecondary
-                        );
-                    }
-                    
-                    yPos += 5;
-                }
-            } catch (err) {
-                console.error('Error adding personality data to PDF:', err);
+        // Create section header
+        function createSectionHeader(title, yPos) {
+            // Add decorative element - use a filled rectangle instead of just a line
+            doc.setFillColor(colors.primary);
+            doc.roundedRect(margin, yPos - 6, pageWidth - (margin * 2), 18, 2, 2, 'F');
+            
+            // Add title text
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(13);
+            doc.setTextColor(colors.white);
+            doc.text(title, pageWidth / 2, yPos + 2, { align: 'center' });
+            
+            return yPos + 16; // Return position after header
+        }
+        
+        // Draw a fancy personality card
+        function drawFancyPersonalityCard(name, description, strengths, yPos, color, isSecondary = false) {
+            const cardWidth = pageWidth - (margin * 2);
+            
+            // Calculate heights more accurately with reduced spacing
+            const titleHeight = 14; // Reduced title area height
+            
+            // Split and measure description text
+            const descriptionText = doc.splitTextToSize(description, cardWidth - 20);
+            const descHeight = descriptionText.length * 5.5;
+            
+            // Calculate strengths section height
+            const strengthsIntroHeight = 8;
+            const strengthItemHeight = 6;
+            const strengthsHeight = strengths && strengths.length > 0 
+                ? strengthsIntroHeight + (strengths.length * strengthItemHeight) 
+                : 0;
+            
+            // Calculate total card height with reduced spacing
+            const cardHeight = titleHeight + descHeight + strengthsHeight + 20; // Reduced padding
+            
+            // Set card colors based on personality type
+            let cardColor;
+            if (isSecondary) {
+                cardColor = '#10b981'; // Green for secondary
+            } else {
+                cardColor = '#2563eb'; // Blue for primary
             }
+            
+            // Draw card background with light color
+            const bgColor = isSecondary ? '#f0f9f4' : '#f0f5ff';
+            doc.setFillColor(bgColor);
+            doc.roundedRect(margin, yPos, cardWidth, cardHeight, 2, 2, 'F');
+            
+            // Draw title bar
+            doc.setFillColor(cardColor);
+            doc.roundedRect(margin, yPos, cardWidth, titleHeight, 2, 2, 'F');
+            
+            // Add title
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(14);
+            doc.setTextColor(colors.white);
+            doc.text(name, margin + 8, yPos + 10);
+            
+            // Add description
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            doc.setTextColor(colors.dark);
+            doc.text(descriptionText, margin + 8, yPos + titleHeight + 8);
+            
+            let currentY = yPos + titleHeight + descHeight + 12;
+            
+            // Add strengths if available
+            if (strengths && strengths.length > 0) {
+                // Add strengths heading
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(11);
+                doc.setTextColor(cardColor);
+                doc.text('Key Strengths:', margin + 8, currentY);
+                currentY += 8;
+                
+                // Add strengths as bullet points
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10);
+                doc.setTextColor(colors.dark);
+                
+                strengths.forEach(strength => {
+                    // Draw bullet
+                    doc.setFillColor(cardColor);
+                    doc.circle(margin + 12, currentY - 1.5, 1.2, 'F');
+                    
+                    // Draw strength text
+                    doc.text(strength, margin + 16, currentY);
+                    currentY += 6;
+                });
+            }
+            
+            return yPos + cardHeight + 8; // Reduced spacing between cards
+        }
+        
+        // Draw a fancy bias card
+        function drawFancyBiasCard(name, score, description, effects, yPos) {
+            const cardWidth = pageWidth - (margin * 2);
+            
+            // Split description text to measure height
+            const descriptionText = doc.splitTextToSize(description, cardWidth - 20);
+            const descHeight = descriptionText.length * 5.5;
+            
+            // Calculate effects height if present
+                        let effectsHeight = 0;
+            let effectsText = [];
+                        if (effects) {
+                effectsText = doc.splitTextToSize(`Impact: ${effects}`, cardWidth - 20);
+                effectsHeight = effectsText.length * 5.5 + 6;
+            }
+            
+            // Calculate total card height with reduced spacing
+            const titleHeight = 12;
+            const cardHeight = titleHeight + descHeight + effectsHeight + 18;
+            
+            // Determine color based on score
+            let scoreColor;
+            if (score >= 7) {
+                scoreColor = '#ef4444'; // Red for high
+            } else if (score >= 4) {
+                scoreColor = '#f59e0b'; // Yellow/amber for medium
+            } else {
+                scoreColor = '#10b981'; // Green for low
+            }
+            
+            // Draw card background (light color based on score)
+            const bgColor = score >= 7 ? '#fef2f2' : (score >= 4 ? '#fffbeb' : '#ecfdf5');
+            doc.setFillColor(bgColor);
+            doc.roundedRect(margin, yPos, cardWidth, cardHeight, 2, 2, 'F');
+            
+            // Draw title section
+            doc.setFillColor(scoreColor);
+            doc.roundedRect(margin, yPos, cardWidth, titleHeight, 2, 2, 'F');
+            
+            // Add title
+                        doc.setFont('helvetica', 'bold');
+            doc.setFontSize(12);
+            doc.setTextColor(colors.white);
+            doc.text(name, margin + 8, yPos + 8);
+            
+            // Add score badge
+            const scoreText = `${score}/10`;
+            const scoreWidth = doc.getTextWidth(scoreText) + 10;
+            doc.setFillColor(colors.white);
+            doc.roundedRect(pageWidth - margin - scoreWidth - 8, yPos + 2, scoreWidth, 8, 3, 3, 'F');
+                        doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9);
+            doc.setTextColor(scoreColor);
+            doc.text(scoreText, pageWidth - margin - scoreWidth - 3, yPos + 7.5, { align: 'center' });
+            
+            // Add description
+                        doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            doc.setTextColor(colors.dark);
+            doc.text(descriptionText, margin + 8, yPos + titleHeight + 8);
+            
+            // Add effects if available
+            if (effects) {
+                const effectsY = yPos + titleHeight + descHeight + 12;
+                doc.setFont('helvetica', 'italic');
+                        doc.setFontSize(9);
+                doc.setTextColor(scoreColor);
+                doc.text(effectsText, margin + 8, effectsY);
+            }
+            
+            return yPos + cardHeight + 6; // Reduced spacing between cards
+        }
+        
+        // Start creating the PDF
+        let yPos = createFancyHeader('Financial Personality Assessment');
+        
+        // Add introduction
+        setFont(fonts.body, colors.dark);
+        const introText = 'This report provides an analysis of your financial decision-making style based on your assessment responses. Use these insights to make more informed financial decisions.';
+        const introLines = doc.splitTextToSize(introText, pageWidth - (margin * 2));
+        doc.text(introLines, margin, yPos);
+        yPos += (introLines.length * 5) + 6; // Reduced spacing
+        
+        // Add date
+        const today = new Date();
+        const dateStr = `${today.toLocaleDateString()} at ${today.toLocaleTimeString()}`;
+        setFont(fonts.small, colors.dark);
+        doc.text(`Report generated on: ${dateStr}`, margin, yPos);
+        yPos += 8; // Reduced spacing
+        
+        // Add personality type information
+        try {
+            // No need to parse again - personalityTypeData is already an object
+            const personalityType = personalityTypeData;
+            
+            if (personalityType && personalityType.primaryType) {
+                yPos = createSectionHeader('YOUR FINANCIAL PERSONALITY PROFILE', yPos);
+                
+                const primary = personalityType.primaryType;
+                yPos = drawFancyPersonalityCard(
+                    primary.name || 'Your Financial Type',
+                    primary.description || 'No description available',
+                    primary.strengths || [],
+                    yPos,
+                    colors.primary
+                );
+                
+                // Add secondary type if available
+                if (personalityType.secondaryType) {
+                    const secondary = personalityType.secondaryType;
+                    yPos = drawFancyPersonalityCard(
+                        secondary.name || 'Secondary Type',
+                        secondary.description || 'No description available',
+                        secondary.strengths || [],
+                        yPos,
+                        colors.secondary,
+                        true // isSecondary
+                    );
+                }
+            }
+        } catch (err) {
+            console.error('Error adding personality data to PDF:', err);
         }
         
         // Add a page break if we're running out of space
-        if (yPos > pageHeight - 60) {
-            doc.addPage();
-            
-            // Add header to new page
-            doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
-            doc.rect(0, 0, pageWidth, 15, 'F');
-            
-            setFont(fonts.body, colors.white);
-            doc.text('Financial Personality Assessment', pageWidth / 2, 10, { align: 'center' });
-            
-            yPos = 25;
+        if (yPos > pageHeight - 50) {
+                            doc.addPage();
+            yPos = createFancyHeader('Financial Personality Assessment');
         }
         
-        // Parse and add cognitive biases information
-        if (userBiasesData) {
-            try {
-                const biases = JSON.parse(userBiasesData);
-                console.log('Parsed bias data:', biases);
+        // Add cognitive biases information
+        try {
+            // No need to parse again - biasData is already an object
+            const biases = biasData;
+            
+            if (biases && biases.length > 0) {
+                yPos = createSectionHeader('YOUR COGNITIVE BIAS PROFILE', yPos);
+                yPos += 4; // Reduced from 5
                 
-                if (biases && biases.length > 0) {
-                    hasData = true;
-                    
-                    // Add bias profile header with modern styling
-                    yPos = addModernSectionHeader('YOUR COGNITIVE BIAS PROFILE', yPos, colors.primary);
-                    yPos += 5;
-                    
-                    // Add explanation text
-                    setFont(fonts.body, colors.dark);
-                    const biasExplanation = 'Your bias profile shows how different cognitive biases may affect your financial decision making. Higher scores indicate stronger biases that could impact your financial outcomes.';
-                    yPos = addWrappedText(biasExplanation, margin, yPos, contentWidth);
-                    yPos += 10;
-                    
-                    // Sort biases by score
-                    const sortedBiases = [...biases].sort((a, b) => b.score - a.score);
-                    
-                    // Add top 3-5 biases with improved card styling to fix overlapping
-                    const topBiases = sortedBiases.slice(0, Math.min(5, sortedBiases.length));
-                    
-                    // Custom function to draw bias cards with fixed spacing
-                    function drawFixedBiasCard(name, score, description, effects, y) {
-                        // Set up card dimensions with improved spacing
-                        const cardMargin = 8;
-                        const titleHeight = 30; // Increased for better spacing
-                        let contentHeight = 0;
-                        
-                        // Determine color based on score
-                        let color = colors.green;
-                        let severityText = 'Mild';
-                        
-                        if (score >= 8) {
-                            color = colors.red;
-                            severityText = 'Strong';
-                        } else if (score >= 6) {
-                            color = colors.accent;
-                            severityText = 'Moderate';
-                        } else if (score >= 4) {
-                            color = colors.secondary;
-                            severityText = 'Mild';
-                        }
-                        
-                        // Measure description text with improved spacing
-                        const descMaxWidth = contentWidth - (cardMargin * 6);
-                        const descLines = doc.splitTextToSize(description, descMaxWidth);
-                        const descHeight = descLines.length * 7 + 15; // Better line height
-                        
-                        // Calculate effects height with improved spacing
-                        let effectsHeight = 0;
-                        let effectLines = [];
-                        if (effects) {
-                            effectLines = doc.splitTextToSize(effects, descMaxWidth);
-                            effectsHeight = effectLines.length * 7 + 25; // Better spacing for effects section
-                        }
-                        
-                        // Calculate total content height with proper spacing
-                        contentHeight = titleHeight + descHeight + effectsHeight + (cardMargin * 4);
-                        
-                        // Create shadow effect
-                        doc.setFillColor(100, 100, 100, 0.08);
-                        doc.roundedRect(margin + 3, y + 3, contentWidth, contentHeight, 3, 3, 'F');
-                        
-                        // Draw card background with gradient
-                        const grd = doc.setGradient("axial", 
-                            margin, y,
-                            margin, y + contentHeight,
-                            [[0, 'F8FAFC'], [1, 'FFFFFF']]
-                        );
-                        
-                        doc.setFillColor(grd);
-                        doc.roundedRect(margin, y, contentWidth, contentHeight, 3, 3, 'F');
-                        
-                        // Add styled border
-                        doc.setDrawColor(color[0], color[1], color[2], 0.5);
-                        doc.setLineWidth(0.7);
-                        doc.roundedRect(margin, y, contentWidth, contentHeight, 3, 3, 'D');
-                        
-                        // Draw left color bar
-                        const indicatorWidth = 6;
-                        doc.setFillColor(color[0], color[1], color[2]);
-                        doc.rect(margin, y, indicatorWidth, contentHeight, 'F');
-                        
-                        // Add title area with subtle background
-                        doc.setFillColor(color[0], color[1], color[2], 0.08);
-                        doc.rect(margin + indicatorWidth, y, contentWidth - indicatorWidth, titleHeight, 'F');
-                        
-                        // Add title with proper positioning
-                        doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(13);
-                        doc.setTextColor(20, 20, 20);
-                        doc.text(name, margin + indicatorWidth + 12, y + 16);
-                        
-                        // Add severity in parentheses
-                        const nameWidth = doc.getTextWidth(name);
-                        doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(10);
-                        doc.setTextColor(color[0], color[1], color[2]);
-                        doc.text(`(${severityText})`, margin + indicatorWidth + nameWidth + 20, y + 16);
-                        
-                        // Add score label and value
-                        doc.setFont('helvetica', 'normal');
-                        doc.setFontSize(9);
-                        doc.setTextColor(50, 50, 50);
-                        doc.text(`Score: ${score.toFixed(1)}/10`, margin + indicatorWidth + 12, y + 26);
-                        
-                        // Draw score bar
-                        const scoreBarX = margin + indicatorWidth + 60;
-                        const scoreBarY = y + 24;
-                        const scoreBarWidth = 80;
-                        const scoreBarHeight = 4;
-                        
-                        // Score background
-                        doc.setFillColor(220, 220, 220);
-                        doc.roundedRect(scoreBarX, scoreBarY, scoreBarWidth, scoreBarHeight, 2, 2, 'F');
-                        
-                        // Filled portion
-                        const filledWidth = Math.max((score / 10) * scoreBarWidth, 6);
-                        doc.setFillColor(color[0], color[1], color[2]);
-                        doc.roundedRect(scoreBarX, scoreBarY, filledWidth, scoreBarHeight, 2, 2, 'F');
-                        
-                        // Add description with proper spacing
-                        const descY = y + titleHeight + 15;
-                        doc.setFont('helvetica', 'normal');
-                        doc.setFontSize(11);
-                        doc.setTextColor(50, 50, 50);
-                        doc.text(descLines, margin + indicatorWidth + 12, descY);
-                        
-                        // Add financial impact section if available
-                        if (effects) {
-                            const impactY = descY + descHeight + 5;
-                            
-                            // Draw impact section background
-                            doc.setFillColor(color[0], color[1], color[2], 0.05);
-                            doc.roundedRect(margin + 15, impactY - 8, contentWidth - 30, effectsHeight - 5, 3, 3, 'F');
-                            
-                            // Add impact heading
-                            doc.setFont('helvetica', 'bold');
-                            doc.setFontSize(10);
-                            doc.setTextColor(color[0], color[1], color[2]);
-                            doc.text('Financial Impact:', margin + 25, impactY);
-                            
-                            // Add impact text with proper spacing
-                            doc.setFont('helvetica', 'italic');
-                            doc.setFontSize(10);
-                            doc.setTextColor(50, 50, 50);
-                            doc.text(effectLines, margin + 25, impactY + 10);
-                        }
-                        
-                        // Return position after this card plus extra spacing
-                        return y + contentHeight + 15;
+                // Add explanation text
+                setFont(fonts.body, colors.dark);
+                const biasExplanation = 'Your bias profile shows how different cognitive biases may affect your financial decision making. Higher scores indicate stronger biases that could impact your financial outcomes.';
+                const biasLines = doc.splitTextToSize(biasExplanation, pageWidth - (margin * 2));
+                doc.text(biasLines, margin, yPos);
+                yPos += (biasLines.length * 5) + 6; // Reduced from 10
+                
+                // Sort biases by score (highest first)
+                const sortedBiases = [...biases].sort((a, b) => b.score - a.score);
+                
+                // Add bias cards
+                sortedBiases.forEach(bias => {
+                    // Check if we need a new page
+                    if (yPos > pageHeight - 60) {
+                        doc.addPage();
+                        yPos = createFancyHeader('Financial Personality Assessment');
                     }
                     
-                    topBiases.forEach((bias, index) => {
-                        // Add a page break if needed
-                        if (yPos > pageHeight - 60) {
-                            doc.addPage();
-                            
-                            // Add header to new page
-                            doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
-                            doc.rect(0, 0, pageWidth, 15, 'F');
-                            
-                            setFont(fonts.body, colors.white);
-                            doc.text('Financial Personality Assessment - Bias Profile', pageWidth / 2, 10, { align: 'center' });
-                            
-                            yPos = 25;
-                        }
-                        
-                        // Draw bias card with FIXED styling to prevent overlapping
-                        yPos = drawFixedBiasCard(
-                            bias.name || 'Bias Type',
-                            bias.score || 5,
-                            bias.description || 'No description available',
-                            bias.effects || null,
+                    yPos = drawFancyBiasCard(
+                        bias.name,
+                        bias.score,
+                        bias.description,
+                        bias.effects,
                             yPos
                         );
-                        
-                        yPos += (index < topBiases.length - 1) ? 0 : 5; // Extra spacing after last card
                     });
                 }
             } catch (err) {
                 console.error('Error adding bias data to PDF:', err);
-            }
         }
         
-        // If no real data was added, add a message about it
-        if (!hasData) {
-            yPos += 15;
-            
-            // Add styled message box
-            doc.setFillColor(colors.red[0], colors.red[1], colors.red[2], 0.1);
-            doc.roundedRect(margin - 5, yPos - 5, contentWidth + 10, 60, 3, 3, 'F');
-            
-            // Add icon
-            doc.setFillColor(colors.red[0], colors.red[1], colors.red[2]);
-            doc.circle(margin + 10, yPos + 10, 5, 'F');
-            
-            // Add message title
-            setFont(fonts.heading3, colors.red);
-            doc.text('Assessment Data Not Found', margin + 25, yPos + 10);
-            yPos += 20;
-            
-            // Add message content
+        // Add debiasing strategies section
+        yPos = createSectionHeader('RECOMMENDATIONS & STRATEGIES', yPos + 6); // Reduced from 10
+        yPos += 4; // Reduced from 5
+        
+        // Add debiasing strategies content
             setFont(fonts.body, colors.dark);
-            const noDataText = 'Your assessment data couldn\'t be found. This could happen if:';
-            yPos = addWrappedText(noDataText, margin + 5, yPos, contentWidth - 10);
-            yPos += 8;
-            
-            const reasons = [
-                'You haven\'t completed the assessment yet',
-                'Your browser\'s localStorage has been cleared',
-                'You\'re using a different browser or device than when you took the assessment'
-            ];
-            
-            reasons.forEach(reason => {
-                // Draw styled bullet
-                doc.setFillColor(colors.red[0], colors.red[1], colors.red[2]);
-                doc.circle(margin + 10, yPos, 1.5, 'F');
-                
-                // Add reason text
-                doc.text(reason, margin + 15, yPos);
-                yPos += 6;
-            });
-            
-            yPos += 10;
-            
-            // Add suggestion with call-to-action styling
-            setFont(fonts.subheading, colors.primary);
-            const suggestion = 'Please take the assessment again to generate your personalized report.';
-            yPos = addWrappedText(suggestion, margin + 5, yPos, contentWidth - 10);
-        }
+        const strategyText = 'Based on your profile, here are some strategies to improve your financial decision-making:';
+        doc.text(strategyText, margin, yPos);
+        yPos += 8; // Reduced from 10
         
-        // Add footer to each page
-        const pageCount = doc.getNumberOfPages();
+        // Add generic strategies
+        const strategies = [
+            {
+                title: 'Awareness is the First Step',
+                text: 'Simply being aware of your financial personality type and cognitive biases can help you make more balanced decisions.'
+            },
+            {
+                title: 'Create Decision Checklists',
+                text: 'Before making important financial decisions, use a checklist to ensure you\'re considering all relevant factors and not just following instincts.'
+            },
+            {
+                title: 'Seek Diverse Perspectives',
+                text: 'Consult with people who have different financial personality types to gain broader insights before making major decisions.'
+            },
+            {
+                title: 'Regular Self-Assessment',
+                text: 'Periodically retake this assessment to track how your financial tendencies evolve over time and with experience.'
+            }
+        ];
+        
+        strategies.forEach(strategy => {
+            // Check if we need a new page
+            if (yPos > pageHeight - 25) {
+                doc.addPage();
+                yPos = createFancyHeader('Financial Personality Assessment');
+            }
+            
+            setFont(fonts.subheading, colors.primary);
+            doc.text(strategy.title, margin, yPos);
+            yPos += 5;
+            
+            setFont(fonts.body, colors.dark);
+            const stratText = doc.splitTextToSize(strategy.text, pageWidth - (margin * 2));
+            doc.text(stratText, margin, yPos);
+            yPos += (stratText.length * 5) + 6; // Reduced from 8
+        });
+        
+        // Add footer to all pages
+        const pageCount = doc.internal.getNumberOfPages();
         for (let i = 1; i <= pageCount; i++) {
             doc.setPage(i);
             
-            // Add footer area
-            const footerY = pageHeight - 12;
-            
             // Add footer line
-            doc.setDrawColor(colors.lightGray[0], colors.lightGray[1], colors.lightGray[2]);
+            doc.setDrawColor(colors.primary);
             doc.setLineWidth(0.5);
-            doc.line(margin, footerY - 4, pageWidth - margin, footerY - 4);
+            doc.line(margin, pageHeight - 12, pageWidth - margin, pageHeight - 12);
             
             // Add footer text
-            setFont(fonts.small, colors.gray);
-            doc.text('© Financial Personality Assessment', margin, footerY);
-            doc.text(`Page ${i} of ${pageCount}`, pageWidth - margin, footerY, { align: 'right' });
-        }
-        
-        // Add implementation tips box with modern styling
-        if (yPos < pageHeight - 100) {
-            yPos = addImplementationTipsBox(doc, yPos);
-        } else {
-            // Add a new page if not enough space
-            doc.addPage();
-                    
-            // Add header to new page
-            doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
-            doc.rect(0, 0, pageWidth, 15, 'F');
-                    
-            setFont(fonts.body, colors.white);
-            doc.text('Financial Personality Assessment - Implementation Guide', pageWidth / 2, 10, { align: 'center' });
-                    
-            yPos = 25;
-            yPos = addImplementationTipsBox(doc, yPos);
+            setFont(fonts.small, colors.dark);
+            doc.text('Financial Personality Assessment', margin, pageHeight - 6);
+            doc.text(`Page ${i} of ${pageCount}`, pageWidth - margin, pageHeight - 6, { align: 'right' });
         }
         
         // Save the PDF
-        doc.save('financial-personality-assessment.pdf');
-        console.log('PDF saved successfully using jsPDF');
-        trackEngagement('export_results', { format: 'pdf', method: 'jspdf' });
+        const filename = 'Financial_Personality_Assessment.pdf';
+        doc.save(filename);
+        
+        // Hide loading spinner
+        hideLoadingSpinner();
+        
+        // Show success notification
         showNotification('Your assessment results have been exported to PDF!', 'success');
         
+        return true;
     } catch (error) {
-        console.error('Error generating PDF with jsPDF:', error);
+        console.error('Error creating PDF:', error);
+        hideLoadingSpinner();
         showNotification('There was an error exporting to PDF. Please try again.', 'error');
+        return false;
     }
 }
 
@@ -2112,10 +2011,19 @@ function getFromLocalStorage(key) {
 
 // Track user engagement (in a real app, this would send to an analytics service)
 function trackEngagement(event, data = {}) {
-    console.log(`TRACKING: ${event}`, data);
+    // Only log to console in development mode
+    const isDevelopment = window.location.hostname === 'localhost' || 
+                          window.location.hostname === '127.0.0.1';
     
-    // In a real app, you would send this to an analytics service
-    // For example, Google Analytics, Mixpanel, etc.
+    if (isDevelopment) {
+        console.log('Tracking event:', event, data);
+    }
+    
+    // In a real app, this would send data to an analytics service
+    // For example:
+    // if (typeof gtag === 'function') {
+    //     gtag('event', event, data);
+    // }
 }
 
 // Make functions available globally
@@ -2838,9 +2746,9 @@ function handleResponsiveNavigation() {
     // Ensure header has consistent height
     if (header) {
         // Make sure header has the necessary styles
-        header.style.height = '60px';
-        header.style.minHeight = '60px';
-        header.style.maxHeight = '60px';
+            header.style.height = '60px';
+            header.style.minHeight = '60px';
+            header.style.maxHeight = '60px';
         header.style.display = 'flex';
         header.style.alignItems = 'center';
         
@@ -2971,3 +2879,194 @@ window.addEventListener('orientationchange', function() {
     setTimeout(handleResponsiveNavigation, 200);
 });
     
+/**
+ * Shows a loading spinner with a custom message
+ * @param {string} message - The message to display with the spinner
+ */
+function showLoadingSpinner(message = 'Loading...') {
+    // Check if a spinner already exists
+    let spinner = document.getElementById('loading-spinner');
+    
+    // If spinner doesn't exist, create it
+    if (!spinner) {
+        // Create the spinner container
+        spinner = document.createElement('div');
+        spinner.id = 'loading-spinner';
+        spinner.className = 'fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50';
+        
+        // Create the spinner content
+        const spinnerContent = document.createElement('div');
+        spinnerContent.className = 'bg-white p-6 rounded-lg shadow-xl max-w-md text-center';
+        
+        // Add spinner animation
+        const spinnerAnimation = document.createElement('div');
+        spinnerAnimation.className = 'animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4';
+        
+        // Add message
+        const spinnerMessage = document.createElement('p');
+        spinnerMessage.id = 'spinner-message';
+        spinnerMessage.className = 'text-gray-700 text-lg';
+        spinnerMessage.textContent = message;
+        
+        // Assemble the spinner
+        spinnerContent.appendChild(spinnerAnimation);
+        spinnerContent.appendChild(spinnerMessage);
+        spinner.appendChild(spinnerContent);
+        
+        // Add to the body
+        document.body.appendChild(spinner);
+    } else {
+        // Update the existing spinner message
+        const spinnerMessage = document.getElementById('spinner-message');
+        if (spinnerMessage) {
+            spinnerMessage.textContent = message;
+        }
+        
+        // Make sure it's visible
+        spinner.style.display = 'flex';
+    }
+    
+    debugLog('Loading spinner shown:', message);
+}
+
+/**
+ * Hides the loading spinner
+ */
+function hideLoadingSpinner() {
+    const spinner = document.getElementById('loading-spinner');
+    if (spinner) {
+        // Fade out effect
+        spinner.style.transition = 'opacity 0.3s ease';
+        spinner.style.opacity = '0';
+        
+        // Remove after animation
+        setTimeout(() => {
+            spinner.remove();
+        }, 300);
+        
+        debugLog('Loading spinner hidden');
+    }
+}
+    
+// Google Feedback Form Integration
+const GOOGLE_FORM = {
+    FORM_ID: '1FAIpQLSdRk-OJWkPDkSp_lDbwOsKDLV9dMwiuk6PhiybVvEY--D1HcQ',
+    RATING_ENTRY_ID: 'entry.498183565',   // Rating question
+    COMMENTS_ENTRY_ID: 'entry.914717203'  // Comments question
+};
+
+// Initialize the feedback form
+function initFeedbackForm() {
+    // Check if feedback was already submitted
+    const feedbackSubmitted = getFromLocalStorage(STORAGE_KEYS.FEEDBACK_SUBMITTED);
+    if (feedbackSubmitted === 'true') {
+        // Hide the form and show thank you
+        const feedbackContainer = document.getElementById('feedback-container');
+        const thankYouMessage = document.getElementById('feedback-thank-you');
+        
+        if (feedbackContainer) {
+            feedbackContainer.classList.add('hidden');
+        }
+        
+        if (thankYouMessage) {
+            thankYouMessage.classList.remove('hidden');
+        }
+        
+        return;
+    }
+    
+    const submitButton = document.getElementById('submit-feedback');
+    const feedbackContainer = document.getElementById('feedback-container');
+    const thankYouMessage = document.getElementById('feedback-thank-you');
+    
+    if (!submitButton) return;
+    
+    submitButton.addEventListener('click', function() {
+        // Get the selected rating
+        const ratingInput = document.querySelector('input[name="rating"]:checked');
+        const rating = ratingInput ? ratingInput.value : null;
+        
+        // Get comments
+        const comments = document.getElementById('feedback-comment').value.trim();
+        
+        // Validate input
+        if (!rating) {
+            showNotification('Please select a rating before submitting', 'info');
+            return;
+        }
+        
+        // Submit feedback
+        submitFeedbackToGoogleForms(rating, comments);
+        
+        // Hide form and show thank you message
+        feedbackContainer.classList.add('hidden');
+        thankYouMessage.classList.remove('hidden');
+        
+        // Save to localStorage that feedback was submitted
+        saveToLocalStorage(STORAGE_KEYS.FEEDBACK_SUBMITTED, 'true');
+        
+        // Track engagement if available
+        trackEngagement('feedback_submitted', { rating });
+    });
+}
+
+// Submit feedback to Google Forms without page redirect
+function submitFeedbackToGoogleForms(rating, comments) {
+    // Show loading indicator
+    showLoadingSpinner('Sending your feedback...');
+    
+    // Build the Google Form submission URL
+    const googleFormsUrl = `https://docs.google.com/forms/d/e/${GOOGLE_FORM.FORM_ID}/formResponse`;
+    
+    // Create an invisible iframe to handle the form submission
+    const iframe = document.createElement('iframe');
+    iframe.name = 'hidden_iframe';
+    iframe.id = 'hidden_iframe';
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+    
+    // Create the form element
+    const form = document.createElement('form');
+    form.action = googleFormsUrl;
+    form.method = 'POST';
+    form.target = 'hidden_iframe';
+    
+    // Add form data as hidden inputs
+    const addInput = (name, value) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value || '';
+        form.appendChild(input);
+    };
+    
+    // Add each piece of data
+    addInput(GOOGLE_FORM.RATING_ENTRY_ID, rating);
+    addInput(GOOGLE_FORM.COMMENTS_ENTRY_ID, comments);
+    
+    // Append form to the document and submit
+    document.body.appendChild(form);
+    
+    // Listen for iframe load event
+    iframe.addEventListener('load', function() {
+        // Hide loading spinner
+        hideLoadingSpinner();
+        
+        // Show success notification
+        showNotification('Thank you for your feedback!', 'success');
+        
+        // Clean up
+        setTimeout(() => {
+            document.body.removeChild(form);
+            document.body.removeChild(iframe);
+        }, 1000);
+    });
+    
+    // Submit the form
+    form.submit();
+    
+    // Backup in case load event doesn't fire
+    setTimeout(() => {
+        hideLoadingSpinner();
+    }, 3000);
+}

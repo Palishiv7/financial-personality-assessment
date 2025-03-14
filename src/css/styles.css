@@ -9,6 +9,7 @@ html {
 html, body {
   -webkit-overflow-scrolling: touch; /* Keep this for better inertia scrolling */
   overscroll-behavior: none; /* Prevent bounce effects */
+  overscroll-behavior-y: contain; /* Prevent overscroll which can trigger refresh */
 }
 
 /* Base desktop container styles */
@@ -1282,16 +1283,17 @@ input[type="checkbox"] {
 
 /* Feedback form styling */
 .feedback-container {
-  background-color: white;
-  border-radius: 12px;
+  background-color: #fff;
+  border-radius: 15px;
   padding: 30px;
   margin-top: 40px;
   margin-bottom: 40px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-  border: 1px solid #f0f0f0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .feedback-container h3 {
@@ -1333,6 +1335,11 @@ input[type="checkbox"] {
   border-radius: 50px;
   padding: 5px 15px;
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+  justify-content: center;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .stars input {
@@ -1345,6 +1352,12 @@ input[type="checkbox"] {
   padding: 0 8px;
   cursor: pointer;
   transition: all 0.3s ease;
+  /* Increase touch target size */
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .stars label:hover,
@@ -1441,18 +1454,21 @@ input[type="checkbox"] {
 }
 
 .rating-section {
-  background-color: #f8fafc;
+  background-color: #f9fafb;
   border-radius: 10px;
   padding: 20px;
   margin-bottom: 25px;
-  border: 1px solid #e2e8f0;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .rating-question {
-  font-weight: 600;
-  color: #374151;
+  font-size: 16px;
+  font-weight: 500;
+  color: #4b5563;
   margin-bottom: 15px;
   text-align: center;
+  line-height: 1.5;
 }
 
 .comment-label {
@@ -1485,6 +1501,8 @@ input[type="checkbox"] {
   
   .stars {
     height: 45px;
+    width: 100%;
+    justify-content: center;
   }
   
   .stars label {
@@ -1499,5 +1517,75 @@ input[type="checkbox"] {
   #submit-feedback {
     width: 100%;
     padding: 12px 20px;
+  }
+}
+
+/* Prevent accidental taps on mobile */
+@media (max-width: 767.98px) {
+  .stars {
+    /* Add more spacing between stars on mobile */
+    padding: 8px 10px;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .stars label {
+    /* Slightly reduce size but keep adequate touch target */
+    font-size: 2.2rem;
+    padding: 0 10px;
+  }
+  
+  /* Add explicit touch action to prevent browsers from doing special things with touches */
+  #feedback-form {
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+  }
+  
+  /* Make sure button is large enough to be easily tapped */
+  #submit-feedback {
+    min-height: 48px;
+    margin-top: 10px;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 375px) {
+  .stars {
+    height: 40px;
+    padding: 5px;
+  }
+  
+  .stars label {
+    font-size: 1.8rem;
+    padding: 0 4px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+  
+  .rating-question {
+    font-size: 15px;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 320px) {
+  .stars {
+    height: 38px;
+    padding: 4px;
+  }
+  
+  .stars label {
+    font-size: 1.6rem;
+    padding: 0 3px;
+    min-width: 30px;
+    min-height: 30px;
+  }
+  
+  .feedback-container {
+    padding: 15px;
+  }
+  
+  .rating-question {
+    font-size: 14px;
   }
 } 

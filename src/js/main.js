@@ -83,14 +83,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Animate the counters for social proof
     animateCounters();
     
-    // Simple passive scroll listener for better performance
-    // (removed class toggling that was causing rendering issues)
+    // Remove all scroll listeners for better mobile performance
     function optimizeScrolling() {
-        // Just add passive listener to improve scroll performance
-        window.addEventListener('scroll', function() {
-            // Empty handler with passive: true improves performance
-            // without affecting rendering
-        }, { passive: true });
+        // We're not adding any scroll listeners as they can cause issues on mobile
+        // Especially when scrolling to the feedback form
+        console.log('Mobile scroll optimization: No listeners added to prevent refresh issues');
     }
     
     // Initialize scroll optimization
@@ -3011,7 +3008,10 @@ function initFeedbackForm() {
     
     if (!submitButton) return;
     
-    submitButton.addEventListener('click', function() {
+    submitButton.addEventListener('click', function(e) {
+        // Prevent default form submission behavior
+        e.preventDefault();
+        
         // Get the selected rating
         const ratingInput = document.querySelector('input[name="rating"]:checked');
         const rating = ratingInput ? ratingInput.value : null;

@@ -386,35 +386,37 @@
 
             <!-- Feedback Form -->
             <div id="feedback-container" class="feedback-container mt-8">
-                <div class="feedback-header">
-                    <h3>Your Feedback Matters</h3>
-                    <p>We value your opinion! Please share your thoughts to help us improve the assessment experience.</p>
-                </div>
-                
-                <div class="rating-section">
-                    <p class="rating-question">How would you rate your experience with this assessment?</p>
-                    <div class="rating-container">
-                        <div class="stars">
-                            <input type="radio" id="star5" name="rating" value="5" />
-                            <label for="star5" title="Excellent">★</label>
-                            <input type="radio" id="star4" name="rating" value="4" />
-                            <label for="star4" title="Very Good">★</label>
-                            <input type="radio" id="star3" name="rating" value="3" />
-                            <label for="star3" title="Good">★</label>
-                            <input type="radio" id="star2" name="rating" value="2" />
-                            <label for="star2" title="Fair">★</label>
-                            <input type="radio" id="star1" name="rating" value="1" />
-                            <label for="star1" title="Poor">★</label>
+                <form id="feedback-form" onsubmit="return false;">
+                    <div class="feedback-header">
+                        <h3>Your Feedback Matters</h3>
+                        <p>We value your opinion! Please share your thoughts to help us improve the assessment experience.</p>
+                    </div>
+                    
+                    <div class="rating-section">
+                        <p class="rating-question">How would you rate your experience with this assessment?</p>
+                        <div class="rating-container">
+                            <div class="stars">
+                                <input type="radio" id="star5" name="rating" value="5" />
+                                <label for="star5" title="Excellent">★</label>
+                                <input type="radio" id="star4" name="rating" value="4" />
+                                <label for="star4" title="Very Good">★</label>
+                                <input type="radio" id="star3" name="rating" value="3" />
+                                <label for="star3" title="Good">★</label>
+                                <input type="radio" id="star2" name="rating" value="2" />
+                                <label for="star2" title="Fair">★</label>
+                                <input type="radio" id="star1" name="rating" value="1" />
+                                <label for="star1" title="Poor">★</label>
+                            </div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="comment-container">
-                    <p class="comment-label">Would you like to share additional thoughts?</p>
-                    <textarea id="feedback-comment" placeholder="Any comments or suggestions for improvement?"></textarea>
-                </div>
-                
-                <button id="submit-feedback">Submit Feedback</button>
+                    
+                    <div class="comment-container">
+                        <p class="comment-label">Would you like to share additional thoughts?</p>
+                        <textarea id="feedback-comment" placeholder="Any comments or suggestions for improvement?"></textarea>
+                    </div>
+                    
+                    <button type="button" id="submit-feedback">Submit Feedback</button>
+                </form>
             </div>
 
             <div id="feedback-thank-you" class="feedback-thank-you hidden">

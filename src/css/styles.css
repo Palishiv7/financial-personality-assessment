@@ -185,9 +185,49 @@ header .container {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12) !important;
   }
   
-  /* Simplify mobile menu transition */
+  /* Mobile menu - complete styling for hamburger functionality */
   #mobile-menu {
-    transition: opacity 0.3s ease !important;
+    position: fixed !important;
+    top: 60px !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1000 !important;
+    background-color: white !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+    opacity: 0 !important;
+    transform: translateY(-10px) !important;
+    transition: opacity 0.3s ease, transform 0.3s ease !important;
+    pointer-events: none !important;
+    padding: 1rem !important;
+  }
+
+  #mobile-menu.hidden {
+    display: none !important;
+    opacity: 0 !important;
+    transform: translateY(-10px) !important;
+    pointer-events: none !important;
+  }
+
+  #mobile-menu.open {
+    display: block !important;
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    pointer-events: auto !important;
+  }
+  
+  /* Mobile menu button styles */
+  #mobile-menu-button {
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+  }
+  
+  #mobile-menu-button:hover {
+    transform: scale(1.05) !important;
+  }
+  
+  /* Ensure main content has proper spacing from fixed header */
+  main {
+    margin-top: 60px !important;
   }
   
   /* Disable the "is-scrolling" pause which was causing white screen */

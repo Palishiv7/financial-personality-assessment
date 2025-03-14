@@ -119,9 +119,26 @@ function initMobileMenu() {
     
     // Toggle mobile menu when button is clicked
     if (mobileMenuButton && mobileMenu) {
-        mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-            mobileMenu.classList.toggle('open');
+        mobileMenuButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (mobileMenu.classList.contains('hidden')) {
+                // Open menu
+                mobileMenu.classList.remove('hidden');
+                // Wait a tiny bit before adding the open class for the animation to work
+                setTimeout(() => {
+                    mobileMenu.classList.add('open');
+                }, 10);
+                console.log('Mobile menu opened');
+            } else {
+                // Close menu
+                mobileMenu.classList.remove('open');
+                // Wait for animation to complete before hiding
+                setTimeout(() => {
+                    mobileMenu.classList.add('hidden');
+                }, 300);
+                console.log('Mobile menu closed');
+            }
         });
     }
     

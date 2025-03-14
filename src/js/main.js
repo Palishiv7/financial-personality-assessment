@@ -83,24 +83,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Animate the counters for social proof
     animateCounters();
     
-    // Detect scroll for mobile optimization
-    let scrollTimeout;
+    // Simple passive scroll listener for better performance
+    // (removed class toggling that was causing rendering issues)
     function optimizeScrolling() {
-        const html = document.documentElement;
-        
-        // When scrolling starts
+        // Just add passive listener to improve scroll performance
         window.addEventListener('scroll', function() {
-            // Add class to indicate scrolling
-            html.classList.add('is-scrolling');
-            
-            // Clear any existing timeout
-            clearTimeout(scrollTimeout);
-            
-            // Set timeout to remove class when scrolling stops
-            scrollTimeout = setTimeout(function() {
-                html.classList.remove('is-scrolling');
-            }, 200); // Wait 200ms after scroll stops
-        }, { passive: true }); // Use passive listener for better performance
+            // Empty handler with passive: true improves performance
+            // without affecting rendering
+        }, { passive: true });
     }
     
     // Initialize scroll optimization

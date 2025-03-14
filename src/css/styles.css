@@ -1,29 +1,14 @@
 /* Custom styles beyond Tailwind */
 
-/* Smooth scrolling - only on non-touch devices to prevent jank */
-@media (hover: hover) {
-  html {
-    scroll-behavior: smooth;
-  }
+/* For all devices - simple scrolling */
+html {
+  scroll-behavior: auto; /* Disable smooth scrolling to prevent issues */
 }
 
-/* Touch devices - disable smooth scrolling to prevent jank */
-@media (hover: none) {
-  html {
-    scroll-behavior: auto;
-  }
-}
-
-/* Mobile scrolling optimization */
+/* Minimal mobile scrolling optimization - avoid over-optimization */
 html, body {
-  -webkit-overflow-scrolling: touch; /* Improve mobile scrolling */
+  -webkit-overflow-scrolling: touch; /* Keep this for better inertia scrolling */
   overscroll-behavior: none; /* Prevent bounce effects */
-  backface-visibility: hidden; /* Reduce paint */
-  -webkit-backface-visibility: hidden;
-  perspective: 1000;
-  -webkit-perspective: 1000;
-  transform: translate3d(0,0,0); /* Force GPU acceleration */
-  -webkit-transform: translate3d(0,0,0);
 }
 
 /* Base desktop container styles */
@@ -175,74 +160,40 @@ header .container {
     }
 }
 
-/* Mobile animation performance optimizations */
+/* Simplified mobile optimizations - fix white screen issue */
 @media (max-width: 767.98px) {
-  /* Force hardware acceleration for all animations */
-  .fade-in,
-  .slide-in-right,
-  .slide-in-left,
-  .slide-in-up,
-  .pulse,
-  .pulse-strong,
-  .hero-bg,
-  .loading-spinner,
-  .bias-card,
-  .strategy-card,
-  #mobile-menu,
-  header.fixed,
-  #progress-tracker {
-    will-change: transform, opacity;
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-  }
+  /* Remove hardware acceleration that was causing issues */
   
-  /* Reduce animation complexity on mobile */
-  .hero-bg {
-    animation: none !important; /* Disable gradient animation on mobile */
-    background: linear-gradient(135deg, #2563eb, #4f46e5) !important; /* Static gradient */
-  }
-  
-  /* Optimize fixed elements to reduce paint */
+  /* Fix for the header */
   header.fixed {
     position: fixed;
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
     z-index: 1000;
-    /* Use solid color instead of box-shadow for better performance */
+    /* Simple border instead of complex effects */
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     box-shadow: none !important;
   }
   
-  /* Fix for the blink issue - prevent content moving during scroll */
+  /* Maintain padding for fixed header */
   body {
-    padding-top: 60px; /* Adjust based on your fixed header height */
+    padding-top: 60px; /* Keep this to prevent content jumping */
   }
   
-  /* Reduce repaints by using solid colors instead of gradients/shadows where possible */
+  /* Simplified box shadows */
   .bias-card,
   .strategy-card,
   .feedback-container {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12) !important;
   }
   
-  /* Reduce paint areas by using transform instead of top/left for positioning */
+  /* Simplify mobile menu transition */
   #mobile-menu {
-    transform: translateY(calc(-100% + 60px)) translateZ(0);
-    -webkit-transform: translateY(calc(-100% + 60px)) translateZ(0);
-    top: 0;
-    transition: transform 0.3s ease !important;
+    transition: opacity 0.3s ease !important;
   }
   
-  #mobile-menu.open {
-    transform: translateY(0) translateZ(0);
-    -webkit-transform: translateY(0) translateZ(0);
-  }
-  
-  /* Optimize images to avoid layout shifts */
-  img {
-    content-visibility: auto; /* Modern browsers optimization */
+  /* Disable the "is-scrolling" pause which was causing white screen */
+  html.is-scrolling * {
+    animation-play-state: running !important; /* Don't pause animations */
+    transition: inherit !important; /* Don't disable transitions */
   }
   
   /* Reduce animation duration for better performance */
@@ -256,132 +207,21 @@ header .container {
     animation-duration: 0.3s !important;
   }
   
-  /* Disable animations during scroll to prevent jank */
-  html.is-scrolling * {
-    animation-play-state: paused !important;
-    transition: none !important;
+  /* Use simpler animations for mobile */
+  .slide-in-left, .slide-in-right, .slide-in-up {
+     animation: simpleFadeIn 0.4s ease-in-out;
   }
   
-  /* Reduce animation complexity on mobile */
-  .slide-in-left, .slide-in-right, .slide-in-up {
-        animation: simpleFadeIn 0.4s ease-in-out;
-    }
-    
-    /* Use simpler animations for mobile */
-    @keyframes simpleFadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-    
-    /* Optimize button animations */
-    button::after {
-        display: none;
-    }
-    
-    /* Adjust hero section for mobile */
-    .hero-bg {
-        animation: gradientBG 30s ease infinite; /* Slower animation for mobile */
-    }
-    
-    /* Optimize transitions */
-    * {
-        transition-duration: 0.2s !important; /* Faster transitions on mobile */
-    }
-    
-    /* Improved text readability on mobile */
-    p, li {
-        font-size: 16px !important; 
-        line-height: 1.5 !important;
-    }
-    
-    /* Better spacing for mobile forms */
-    input, select, textarea, button[type="submit"] {
-        margin-bottom: 12px;
-        padding: 10px !important;
-        font-size: 16px !important; /* Prevents iOS zoom on focus */
-    }
-    
-    /* Assessment container improvements */
-    #question-container {
-        padding: 16px !important;
-    }
-    
-    /* Fix grid layouts on small screens */
-    .grid {
-        grid-gap: 16px !important;
-    }
-    
-    /* Improve tap targets */
-    a, button, .clickable {
-        min-height: 44px;
-        min-width: 44px;
-        padding: 8px;
-    }
-    
-    /* Site title on mobile */
-    h1 {
-        font-size: 1.5rem !important;
-    }
-    
-    h1 a {
-        padding: 8px 8px 8px 0 !important;
-    }
-
-    /* Hero section adjustments */
-    #hero-section h2 {
-        font-size: 2rem !important;
-    }
-
-    #hero-section p {
-        font-size: 1rem !important;
-    }
-
-    /* Improve mobile navigation */
-    #mobile-menu {
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-        position: fixed; /* Change to fixed to ensure it stays in place during scroll */
-        top: 60px;
-        left: 0;
-        right: 0;
-        z-index: 1000;
-        opacity: 0;
-        transform: translateY(-10px);
-        pointer-events: none;
-        display: none; /* Explicitly hide by default */
-    }
-
-    #mobile-menu.hidden {
-        display: none !important;
-        opacity: 0 !important;
-        transform: translateY(-10px) !important;
-        pointer-events: none !important;
-    }
-
-    #mobile-menu.open {
-        display: block !important;
-        opacity: 1;
-        transform: translateY(0);
-        pointer-events: auto;
-    }
-    
-    #mobile-menu-button {
-        transition: all 0.3s ease;
-    }
-    
-    #mobile-menu-button:hover {
-        transform: scale(1.05);
-    }
-
-    /* Top margin adjustment for content below fixed header */
-    main {
-        margin-top: 60px !important;
-    }
-
-    /* Improve social proof section on mobile */
-    #social-proof-section .flex-col {
-        gap: 1rem;
-    }
+  /* Simple animation that won't cause rendering issues */
+  @keyframes simpleFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  /* Optimize button animations */
+  button::after {
+    display: none;
+  }
 }
 
 /* Site title styles */

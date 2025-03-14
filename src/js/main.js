@@ -82,6 +82,29 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Animate the counters for social proof
     animateCounters();
+    
+    // Detect scroll for mobile optimization
+    let scrollTimeout;
+    function optimizeScrolling() {
+        const html = document.documentElement;
+        
+        // When scrolling starts
+        window.addEventListener('scroll', function() {
+            // Add class to indicate scrolling
+            html.classList.add('is-scrolling');
+            
+            // Clear any existing timeout
+            clearTimeout(scrollTimeout);
+            
+            // Set timeout to remove class when scrolling stops
+            scrollTimeout = setTimeout(function() {
+                html.classList.remove('is-scrolling');
+            }, 200); // Wait 200ms after scroll stops
+        }, { passive: true }); // Use passive listener for better performance
+    }
+    
+    // Initialize scroll optimization
+    optimizeScrolling();
 });
 
 /**
